@@ -1,0 +1,16 @@
+name: CI
+
+on: [push]
+
+jobs:
+  essential-test:
+    name: Call Essential Test Workflow
+    uses: ./.github/workflows/essential-test.yml
+
+  build:
+    name: Call Build Distribution Workflow
+    needs: [essential-test]
+    uses: ./.github/workflows/build-distribution.yml
+    if: >-
+      github.ref == 'refs/heads/main' ||
+      github.ref == 'refs/heads/master'

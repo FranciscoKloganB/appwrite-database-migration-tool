@@ -1,0 +1,34 @@
+name: Callable Essential Test Workflow
+
+on: [workflow_call]
+
+jobs:
+  test:
+    name: Essential (${{ matrix.os }}, ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: ["20.10"]
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: ${{ matrix.node }}
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Scan Vulnerabilities
+        run: npm audit --production
+
+      - name: Format
+        run: npm run format
+
+      - name: Lint
+        run: npm run eslint
+
+      # - name: Test Unit
+      #   run: npm run test:ci

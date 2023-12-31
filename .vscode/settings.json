@@ -1,0 +1,34 @@
+{
+  "editor.autoClosingQuotes": "beforeWhitespace",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.prettier": "explicit",
+    "source.fixAll.tslint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.insertSpaces": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "editor.rulers": [100],
+  "editor.tabSize": 2,
+  "eslint.validate": [
+    "html",
+    "javascript",
+    "typescript",
+    "yaml"
+  ],
+  "files.associations": {
+    ".env.*": "properties"
+  },
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "prettier.enable": true,
+  "prettier.configPath": ".prettierrc.cjs",
+  "prettier.printWidth": 100,
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*"
+  }
+}

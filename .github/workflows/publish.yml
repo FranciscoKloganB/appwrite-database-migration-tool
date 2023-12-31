@@ -1,0 +1,40 @@
+name: Publish
+
+on:
+  # Type 'published' triggers if the release is published, no matter it's draft or not.
+  # Type 'created' triggers when a NON-draft release is created AND published.
+  push:
+    tags:
+      - "v*.*.*"
+  release:
+    types: [created]
+
+jobs:
+  essential-test:
+    name: Call Essential Test Workflow
+    uses: ./.github/workflows/essential-test.yml
+
+  build-publishable-distribution:
+    name: Publish
+    needs: [essential]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: 20.10
+          registry: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Distribution
+        run: npm run build
+
+      - name: Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN}}
