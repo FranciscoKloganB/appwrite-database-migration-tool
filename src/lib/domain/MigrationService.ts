@@ -1,9 +1,9 @@
 import type { Databases } from 'node-appwrite';
 
-import type { MigrationEntity } from '@repositories/entities';
-import type { IMigrationEntity, IMigrationRepository } from '@repositories/interfaces';
-import type { Logger, TransactionMode } from '@types';
-import { createId } from '@utils';
+import type { MigrationEntity } from '@lib/repositories/entities';
+import type { IMigrationEntity, IMigrationRepository } from '@lib/repositories/interfaces';
+import type { Logger, TransactionMode } from '@lib/types';
+import { createId } from '@lib/utils';
 
 import { Migration, type MigrationProps } from './entities';
 

@@ -1,7 +1,7 @@
 import type { Databases, Models } from 'node-appwrite';
 
-import type { Logger } from '@types';
-import { createId, isRecord } from '@utils';
+import type { Logger } from '@lib/types';
+import { createId, isRecord } from '@lib/utils';
 
 import { MigrationEntity } from './entities';
 import type { IMigrationRepository } from './interfaces';

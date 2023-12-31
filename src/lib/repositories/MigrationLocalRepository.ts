@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import invariant from 'tiny-invariant';
 
-import { MIGRATIONS_HOME } from '@constants';
-import type { Logger } from '@types';
+import { MIGRATIONS_HOME } from '@lib/constants';
+import type { Logger } from '@lib/types';
 
 import { MigrationEntity } from './entities';
 import type { MigrationFileEntity } from './entities/MigrationFileEntity';

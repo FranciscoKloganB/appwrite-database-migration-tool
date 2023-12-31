@@ -1,8 +1,8 @@
 import { Client, Databases } from 'node-appwrite';
 import invariant from 'tiny-invariant';
 
-import { MIGRATIONS_COLLECTION_ID, MIGRATIONS_COLLECTION_NAME } from '@constants';
-import type { Logger } from '@types';
+import { MIGRATIONS_COLLECTION_ID, MIGRATIONS_COLLECTION_NAME } from './constants';
+import type { Logger } from './types';
 
 function configuration() {
   const apiKey = process.env['APPWRITE_API_KEY'];

@@ -2,8 +2,10 @@
   "compilerOptions": {
     "rootDir": "../",
     "paths": {
-      "@src": ["../src"],
-      "@/*": ["../src/*"]
+      "@cli": ["../src/cli"],
+      "@cli/*": ["../src/cli/*"],
+      "@lib": ["../src/lib"],
+      "@lib/*": ["../src/lib/*"]
     }
   },
   "exclude": ["node_modules"],

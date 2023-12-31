@@ -1,31 +1,22 @@
-import type { Databases } from 'node-appwrite';
+import type { IMigrationEntity, IMigrationFile } from '@lib/repositories/interfaces';
 
-import type { IMigrationFile } from '@repositories';
-
-export type MigrationProps = {
-  applied: boolean;
-  id: string;
-  instance: IMigrationFile;
-  name: string;
-  timestamp: number;
-};
-
-export class Migration {
+/** Represents a migration collection document. */
+export class MigrationEntity implements IMigrationEntity {
   /** The wether the migration has been applied (executed vs. pending, stored as a document vs. local file only) */
-  #applied: boolean;
+  #applied: boolean | null;
   /** An appwrite document ID */
-  #id: string;
+  #id: string | null;
   /** An instance of the migration file that matches this entity */
-  #instance: IMigrationFile;
+  #instance: IMigrationFile | null;
   /** The name of the migration (class name) which is also the name in the appwrite document */
   #name: string;
   /** The timestamp in which the migration was applied if it was applied, it probably does not match class name timestamp */
   #timestamp: number;
 
   private constructor(
-    applied: boolean,
-    id: string,
-    instance: IMigrationFile,
+    applied: boolean | null,
+    id: string | null,
+    instance: IMigrationFile | null,
     name: string,
     timestamp: number,
   ) {
@@ -36,8 +27,21 @@ export class Migration {
     this.#timestamp = timestamp;
   }
 
-  static create(props: MigrationProps) {
-    return new Migration(props.applied, props.id, props.instance, props.name, props.timestamp);
+  static createFromLocalDocument(props: {
+    instance: IMigrationFile;
+    name: string;
+    timestamp: number;
+  }) {
+    return new MigrationEntity(null, null, props.instance, props.name, props.timestamp);
+  }
+
+  static createFromRemoteDocument(props: {
+    applied: boolean;
+    id: string;
+    name: string;
+    timestamp: number;
+  }) {
+    return new MigrationEntity(props.applied, props.id, null, props.name, props.timestamp);
   }
 
   get $id() {
@@ -62,42 +66,17 @@ export class Migration {
 
   get value() {
     return {
-      $id: this.$id,
       applied: this.applied,
       name: this.name,
       timestamp: this.timestamp,
     } as const;
   }
 
-  isExecuted() {
-    return this.#applied;
-  }
-
-  isPending() {
-    return !this.#applied;
-  }
-
-  async up(databaseService: Databases) {
-    await this.#instance.down(databaseService);
-
-    this.apply();
-
-    return true;
-  }
-
-  async down(databaseService: Databases) {
-    await this.#instance.up(databaseService);
-
-    this.unapply();
-
-    return true;
-  }
-
-  private apply() {
+  apply() {
     this.#applied = true;
   }
 
-  private unapply() {
+  unapply() {
     this.#applied = false;
   }
 }

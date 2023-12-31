@@ -2,6 +2,12 @@
   "name": "@franciscokloganb/appwrite-database-migration-tool",
   "description": "A database migration framework which intends to make your appwrite database schema and data changes easier and more predictable",
   "author": "franciscokloganb",
+  "keywords": [
+    "appwrite",
+    "database",
+    "migration",
+    "tool"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -10,23 +16,40 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "./dist/index.js",
   "exports": {
-    "default": "./dist/index.modern.mjs",
-    "require": "./dist/index.js",
-    "types": "./dist/index.d.ts"
+    ".": {
+      "import": "./dist/lib.esm.js",
+      "node": "./dist/lib.cjs",
+      "require": "./dist/lib.cjs",
+      "default": "./dist/lib.esm.js",
+      "types": "./dist/lib.d.ts"
+    },
+    "./lib": {
+      "import": "./dist/lib.esm.js",
+      "node": "./dist/lib.cjs",
+      "require": "./dist/lib.cjs",
+      "default": "./dist/lib.esm.js",
+      "types": "./dist/lib.d.ts"
+    },
+    "./cli": {
+      "import": "./dist/cli.esm.js",
+      "node": "./dist/cli.cjs",
+      "require": "./dist/cli.cjs",
+      "default": "./dist/cli.esm.js",
+      "types": "./dist/cli.d.ts"
+    }
   },
-  "module": "./dist/index.module.js",
-  "unpkg": "./dist/index.umd.js",
-  "source": "./index.ts",
-  "types": "./dist/index.d.ts",
+  "bin": {
+    "admt": "./dist/cli.cjs"
+  },
+  "main": "./dist/lib.cjs",
+  "module": "./dist/lib.esm.js",
+  "unpkg": "./dist/lib.umd.js",
+  "types": "./dist/lib.d.ts",
   "files": [
     "dist"
   ],
-  "dependencies": {
-    "nanoid": "^3.3.4",
-    "tiny-invariant": "^1.3.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
@@ -62,19 +85,23 @@
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "node-appwrite": "^9.0.0"
+    "commander": "^11.1.0",
+    "nanoid": "^3.3.4",
+    "node-appwrite": "^9.0.0",
+    "tiny-invariant": "^1.3.1"
   },
   "engines": {
     "node": ">=20.10.0",
     "npm": ">=10.2.3"
   },
   "scripts": {
+    "add-shebang": "./add-shebang.sh",
     "auth:npm": "npm-cli-login -u $NPM_USER -p $NPM_PASS -e $NPM_EMAIL -r $NPM_REGISTRY -s $NPM_SCOPE",
     "postauth:npm": "cat ~/.npmrc",
-    "prebuild": "rimraf dist && npm run typecheck",
-    "build": "microbundle && cp -r ./src/codegen ./dist/codegen",
-    "build:server": "microbundle --target node && cp -r ./src/codegen ./dist/codegen",
-    "cop": "run-s format lint",
+    "prebuild": "rimraf dist",
+    "build": "microbundle -i ./{cli,lib}.ts -f modern,esm,cjs,umd --target node",
+    "postbuild": "npm run add-shebang",
+    "cop": "run-s format lint typecheck",
     "dev": "microbundle watch",
     "lint": "eslint --fix --ext \"**/*.{js,ts}\"",
     "format": "prettier --write \"{*,{src,test}/**/*}.+(json|js|ts)\"",

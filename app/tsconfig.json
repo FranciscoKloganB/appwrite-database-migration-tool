@@ -14,8 +14,5 @@
     "skipLibCheck": true,
     "strict": false
   },
-  "exclude": ["node_modules"],
-  "ts-node": {
-    "esm": true
-  }
+  "exclude": ["node_modules"]
 }

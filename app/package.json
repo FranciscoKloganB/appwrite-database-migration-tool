@@ -2,10 +2,11 @@
   "name": "app",
   "type": "module",
   "scripts": {
-    "test": "ts-node index.ts"
+    "test:admt": "admt new-migration --outpath ./migrations --descriptor foobar",
+    "test:lib": "bun run index.ts"
   },
   "dependencies": {
-    "@franciscokloganb/appwrite-database-migration-tool": "file:../../../../local-npm-registry/franciscokloganb-appwrite-database-migration-tool-0.0.4.tgz"
+    "@franciscokloganb/appwrite-database-migration-tool": "file:../../../../local-npm-registry/franciscokloganb-appwrite-database-migration-tool-0.0.5.tgz"
   },
   "devDependencies": {
     "ts-node": ">=10.8.1",

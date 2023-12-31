@@ -1,6 +1,6 @@
 import type { Databases } from 'node-appwrite';
 
-import type { MigrationEntity } from '@repositories/entities';
+import type { MigrationEntity } from '@lib/repositories/entities';
 
 export interface IMigrationEntity {
   $id: string | null;
@@ -12,9 +12,9 @@ export interface IMigrationEntity {
 
 export interface IMigrationFile {
   /** Applies the migrations. */
-  up(databaseService: Databases): Promise<boolean>;
+  up(databaseService: Databases): Promise<void>;
   /** Reverse the migrations. */
-  down(databaseService: Databases): Promise<boolean>;
+  down(databaseService: Databases): Promise<void>;
 }
 
 export interface IMigrationRepository {

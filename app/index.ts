@@ -9,8 +9,9 @@
 // console.log('MJS synthetic default:', typeof SPKG.createMigrationCollection === 'function');
 
 /**  ModuleJS aliased import */
-import * as APKG from '@franciscokloganb/appwrite-database-migration-tool';
+
 /**  ModuleJS Destruct MJS import  */
+import * as APKG from '@franciscokloganb/appwrite-database-migration-tool';
 import { createMigrationCollection } from '@franciscokloganb/appwrite-database-migration-tool';
 
 console.log(

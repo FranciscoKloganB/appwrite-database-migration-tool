@@ -1,4 +1,6 @@
-import { createMigrationCollection, MigrationFileEntity, runMigrationSequence } from '@src';
+import { createMigrationCollection } from '@lib/createMigrationCollection';
+import { MigrationFileEntity } from '@lib/repositories';
+import { runMigrationSequence } from '@lib/runMigrationSequence';
 
 describe('createMigrationCollection', () => {
   it('should be defined', () => {
