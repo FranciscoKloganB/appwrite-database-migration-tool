@@ -1,4 +1,15 @@
-# Using migration-tool
+# Appwrite Database Migration Tool
+
+_**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0.0 release to use on your own projects, unless you want to provide feedback or contribute._
+
+## Roadmap to v1.0.0
+
+- [] Run codegen implementation from a consuming project;
+- [] Run the setup implementation against live Appwrite databases from a consuming project;
+- [] Run the run migration sequence implementation against live Appwrite databases from a consuming project;
+- [] Create one down sequence flow
+- [] Run the one down sequence flow against live Appwrite databases from consuming proeject;
+- [] Add integration tests with mocked Appwrite responses using MSW;
 
 ## Setting up
 
