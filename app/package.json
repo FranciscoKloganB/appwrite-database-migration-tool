@@ -5,7 +5,7 @@
     "test": "ts-node index.ts"
   },
   "dependencies": {
-    "@franciscokloganb/appwrite-database-migration-tool": "file:../../../../local-npm-registry/franciscokloganb-appwrite-database-migration-tool-0.0.1.tgz"
+    "@franciscokloganb/appwrite-database-migration-tool": "file:../../../../local-npm-registry/franciscokloganb-appwrite-database-migration-tool-0.0.4.tgz"
   },
   "devDependencies": {
     "ts-node": ">=10.8.1",

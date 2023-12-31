@@ -8,7 +8,7 @@ LOCAL_NPM_REGISTRY=~/local-npm-registry
 mkdir $LOCAL_NPM_REGISTRY
 rm $LOCAL_NPM_REGISTRY/franciscokloganb-*.tgz || true
 
-npm run build
+npm run build:server
 npm pack --pack-destination $LOCAL_NPM_REGISTRY
 
 cd app

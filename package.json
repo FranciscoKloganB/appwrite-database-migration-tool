@@ -12,8 +12,9 @@
   },
   "main": "./dist/index.js",
   "exports": {
+    "default": "./dist/index.modern.mjs",
     "require": "./dist/index.js",
-    "default": "./dist/index.modern.mjs"
+    "types": "./dist/index.d.ts"
   },
   "module": "./dist/index.module.js",
   "unpkg": "./dist/index.umd.js",
@@ -73,6 +74,7 @@
     "postauth:npm": "cat ~/.npmrc",
     "prebuild": "rimraf dist",
     "build": "microbundle && cp -r ./src/codegen ./dist/codegen",
+    "build:server": "microbundle --target node && cp -r ./src/codegen ./dist/codegen",
     "cop": "run-s format lint",
     "dev": "microbundle watch",
     "lint": "eslint --fix --ext \"**/*.{js,ts}\"",
