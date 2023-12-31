@@ -60,4 +60,34 @@ export async function createMigrationCollection({ log, error }: { log: Logger; e
         error(e.message);
       }
     });
+
+  await databaseService.createBooleanAttribute(
+    databaseId,
+    collectionId,
+    'applied',
+    false,
+    false,
+    false,
+  );
+
+  await databaseService.createStringAttribute(
+    databaseId,
+    collectionId,
+    'name',
+    256,
+    true,
+    undefined,
+    false,
+  );
+
+  await databaseService.createIntegerAttribute(
+    databaseId,
+    collectionId,
+    'timestamp',
+    true,
+    0,
+    9007199254740991,
+    undefined,
+    false,
+  );
 }
