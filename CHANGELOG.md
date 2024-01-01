@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.0.5...v0.1.0) (2024-01-01)
+
+
+### Features
+
+* **cli:** add admt binary for easier codegen ([1a7c1dd](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/1a7c1dd269a70ce037847ff6827944c03d425c41))
+* **codegen:** migration scaffold outputs JS file to avoid asking for built migrations before deploy ([9764ea3](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/9764ea38cd90b0ec7cd356a9483ef156dc14857b))
+
 ### [0.0.5](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.0.4...v0.0.5) (2023-12-31)
 
 
