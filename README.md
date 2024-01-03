@@ -100,7 +100,7 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 - Use the `databaseService` parameter of `up` and `down`, which is an instance of `node-appwrite` Databases class, to define your migration file contents.
 - Once you are done, deploy your changes and execute the `Run Migration Sequence` function.
 
-## Appwrite Database Migration Tool Recommendations and Rules
+## Appwrite Database Migration Tool Bible
 
 ### Rules
 
