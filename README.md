@@ -6,7 +6,7 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 
 - [x] Run codegen implementation from a consuming project;
 - [ ] Run the setup implementation against live Appwrite databases from a consuming project;
-- [ ] Run the run migration sequence implementation against live Appwrite databases from a consuming project;
+- [ ] Run the Migrations Run Sequence implementation against live Appwrite databases from a consuming project;
 - [ ] Create one down sequence flow
 - [ ] Run the one down sequence flow against live Appwrite databases from consuming proeject;
 - [ ] Add integration tests with mocked Appwrite responses using MSW;
@@ -38,7 +38,7 @@ to use the Appwrite Database Migration Tool processes.
   - [Appwrite Functions Video Series (~50m)](https://www.youtube.com/watch?v=UAPt7VBL_T8).
 - Create a Appwrite Database
   - Not needed if you already have a Database.
-- Create an Appwrite Function, one called `Create Migrations Collection` with the body below.
+- Create an Appwrite Function, one called `Migrations Create Collection` with the body below.
   - The function should point at the branch that contains the source for the "environment".
   - Tweak the timeout (default is 15s, increasae it up to a maximum of 15m) in the function settings.
 
@@ -53,7 +53,7 @@ to use the Appwrite Database Migration Tool processes.
   }
   ```
 
-- Create another Appwrite Function, called `Run Migration Sequence` with the body below.
+- Create another Appwrite Function, called `Migrations Run Sequence` with the body below.
   - The function should point at the branch that contains the source for the "environment".
   - Ensure the migration files you create in the future are included in the final function bundle.
     - An example on what this means is given on [FAQ](#faq) section.
@@ -99,7 +99,7 @@ MIGRATIONS_HOME=<relative-path-to-folder-where-runner-finds-your-migrations>
 
 #### Finalize ADMT Setup
 
-- Execute `Create Migrations Collection` once and only once per environment/project.
+- Execute `Migrations Create Collection` once and only once per environment/project.
   - We do prevent duplicate creations. 😇
   - Check that the `Migrations` collection was created with **at least** the following attributes:
     - `$id`: String
@@ -123,7 +123,7 @@ through JSDocs (works just like TypeScript) without needing you to do transpilat
 - Use the `databaseService` parameter of `up` and `down` to write your migration.
   - The parameter is an instance of `node-appwrite` Databases class.
 - Once you are done, deploy push your changes through the environment pipelines.
-  - E.g.: Push to `staging` execute the `Run Migration Sequence` function on Appwrite UI. Verify all
+  - E.g.: Push to `staging` execute the `Migrations Run Sequence` function on Appwrite UI. Verify all
   is good. Finally push to `production` and run the sequence there.
 
 ## Usage, Rules, Recommendations and, FAQ
