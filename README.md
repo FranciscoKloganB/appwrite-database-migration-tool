@@ -11,7 +11,11 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 - [ ] Run the one down sequence flow against live Appwrite databases from consuming proeject;
 - [ ] Add integration tests with mocked Appwrite responses using MSW;
 
-## Setting up
+## Setting Up
+
+### Common/Shared Steps
+
+These steps only need to be made once*.
 
 - Create a `GitHub Repository` to host your Appwrite functions.
   - You can use a repository you already own (e.g., `myproject-functions`).
@@ -21,28 +25,38 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
   repository containing with multiple serverless entrypoints. Allowing you to effectively
   test a function in the staging project, before deploying the changes to the main (production)
   project.
-- Set the repository as the Appwrite Serverless functions source.
+
+### Environment Specific Steps
+
+#### Functions
+
+These steps need to be done per project that represents an applicatio environment in which you want
+to use the Appwrite Database Migration Tool processes.
+
+- Associate the repository with Appwrite Serverless function source.
   - [Appwrite Functions Docs](https://appwrite.io/docs/products/functions/deployment).
   - [Appwrite Functions Video Series (~50m)](https://www.youtube.com/watch?v=UAPt7VBL_T8).
-- Create a Appwrite Database per environment (project).
+- Create a Appwrite Database
   - Not needed if you already have a Database.
-- Create two Appwrite Functions, one called `Create Migrations Collection` and another called
-`Run Migration Sequence`.
-  - Do this once per project.
-  - Point the functions at different branches of the repository
-    - E.g.: point to main branch in production project, point to staging branch in the staging project.
-  - Add the following contents to your functions respectively:
+- Create an Appwrite Function, one called `Create Migrations Collection` with the body below.
+  - The function should point at the branch that contains the source for the "environment".
+  - Tweak the timeout (default is 15s, increasae it up to a maximum of 15m) in the function settings.
 
-    ```ts
-    import { createMigrationCollection } from '@franciscokloganb/appwrite-database-migration-tool'
+  ```ts
+  import { createMigrationCollection } from '@franciscokloganb/appwrite-database-migration-tool'
 
-    export default async (ctx) => {
-      await createMigrationCollection({
-        log: ctx.log,
-        error: ctx.error,
-      })
-    }
-    ```
+  export default async (ctx) => {
+    await createMigrationCollection({
+      log: ctx.log,
+      error: ctx.error,
+    })
+  }
+  ```
+
+- Create another Appwrite Function, called `Run Migration Sequence` with the body below.
+  - The function should point at the branch that contains the source for the "environment".
+  - Ensure the migration files you create in the future are included in the final function bundle.
+    - An example on what this means is given on [FAQ](#faq) section.
 
     ```ts
     import { runMigrationSequence } from '@franciscokloganb/appwrite-database-migration-tool'
@@ -55,52 +69,64 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
     }
     ```
 
-- Each function will require access to the following environment variables.
-  - You can set **them globally in your Appwrite project settings** or scope them to each function.
-  - **Ensure** the values match across functions, if you opted for the scoped approach.
-  - **Ensure** the config does not change over time, if you ran the `runMigrationSequence` at least once.
-    - Not that the config can be changed, but we do not recommended it, unless you planned a transition. Mistakes can leave your application in incosistent states.
+#### Function Environment Variables
 
-  ```properties
-  # Required
-  APPWRITE_API_KEY=<your-appwrite-api-key>
-  # Required
-  APPWRITE_ENDPOINT=<your-appwrite-endpoint>
-  # Required (when running locally instead of a serverless function environment)
-  APPWRITE_FUNCTION_PROJECT_ID=<your-appwrite-project-id>
-  # Required
-  MIGRATIONS_DATABASE_ID=<database-id>
-  # Defaults to 'appwritedatabasemigrationtool'
-  MIGRATIONS_COLLECTION_ID=<collection-id>
-  # Defaults to 'Migrations'
-  MIGRATIONS_COLLECTION_NAME=<collection-name>
-  # Defaults to './migrations'
-  MIGRATIONS_HOME=<relative-path-to-folder-where-runner-finds-your-migrations>
-  ```
+Both functions that you just created require access to the environment variables below. You can set
+**them globally in your Appwrite project settings** or scope them to each function. If you opted
+for the scoped approach **ensure** the values match across functions. Also, **ensure** the config
+does not change over time if you run the `runMigrationSequence` at least once. The code is not
+adapted for configuration changes. While they are possible, we do not recommend doing them, unless
+you have a good reason and planned a transition. This includes updating environment variables,
+build paths, function names, or repository changes. Mistakes can leave your application in
+inconsistent states.
 
-- Execute `Create Migrations Collection` once and only once per `project` / `environment`.
-  - We prevent duplicate creations, but why take chances. 😇
-  - Double check that the `Migrations` collection was created with the following attributes:
+```properties
+# Required
+APPWRITE_API_KEY=<your-appwrite-api-key>
+# Required
+APPWRITE_ENDPOINT=<your-appwrite-endpoint>
+# Required (when running locally instead of a serverless function environment)
+APPWRITE_FUNCTION_PROJECT_ID=<your-appwrite-project-id>
+# Required
+MIGRATIONS_DATABASE_ID=<database-id>
+# Defaults to 'appwritedatabasemigrationtool'
+MIGRATIONS_COLLECTION_ID=<collection-id>
+# Defaults to 'Migrations'
+MIGRATIONS_COLLECTION_NAME=<collection-name>
+# Defaults to './migrations'
+MIGRATIONS_HOME=<relative-path-to-folder-where-runner-finds-your-migrations>
+```
+
+#### Finalize ADMT Setup
+
+- Execute `Create Migrations Collection` once and only once per environment/project.
+  - We do prevent duplicate creations. 😇
+  - Check that the `Migrations` collection was created with **at least** the following attributes:
     - `$id`: String
     - `applied`: Boolean
     - `name`: String
     - `timestamp`: Integer
 
-- Create your first migration (you should use this script everytime you want to create a new migration).
-  - This script is `Node.js` compatible.
+#### Create Your First Migration
+
+- Use our codegen tool to create a new Migration JavaScript file. We give you type annotations
+through JSDocs (works just like TypeScript) without needing you to do transpilation steps.
+  - The codegen tool is `Node` and `Bun` compatible.
   - Your description will be converted to `PascalCase`.
-    - Do not use whitespaces
-    - Do not use underscores
+    - Whitespaces are not allowed.
 
   ```bash
-  # E.g.: npx admt new-migration --outpath ./functions/database/migrations --descriptor initial
+  # E.g.: npx admt new-migration --outpath ./functions/database/migrations --descriptor CreateProductsCollection
   npx admt new-migration --outpath <relative-path> --descriptor <migration-summary>
   ```
 
-- Use the `databaseService` parameter of `up` and `down`, which is an instance of `node-appwrite` Databases class, to define your migration file contents.
-- Once you are done, deploy your changes and execute the `Run Migration Sequence` function.
+- Use the `databaseService` parameter of `up` and `down` to write your migration.
+  - The parameter is an instance of `node-appwrite` Databases class.
+- Once you are done, deploy push your changes through the environment pipelines.
+  - E.g.: Push to `staging` execute the `Run Migration Sequence` function on Appwrite UI. Verify all
+  is good. Finally push to `production` and run the sequence there.
 
-## Appwrite Database Migration Tool Bible
+## Usage, Rules, Recommendations and, FAQ
 
 ### Rules
 
@@ -119,9 +145,33 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 - Follow the expand-and-contract pattern.
   - Read [here](https://www.prisma.io/dataguide/types/relational/expand-and-contract-pattern).
 - Follow the single-responsibility principle.
-  - We do not have direct access to Appwrite's MariaDB instances, thus no real transaction mechanisms are used.
-  - It's better to do incremental migrations then one migration that might leave your app in an inconsistent state. Plan your migrations!
-- Avoid abstractions in your migration files. They are subject to change in the future. If you use them, ensure that whatever happens, the output of the migration up sequence is always the same. A change of output in a migration M may cause a migration M + x, x > 0, to no longer work as intended.
+  - We do not have direct access to Appwrite's MariaDB instances, thus no real transaction
+  mechanisms are used.
+  - It's better to do incremental migrations then one migration that might leave your app in an
+  inconsistent state. Plan your migrations!
+- Avoid abstractions in your migration files. They are subject to change in the future. If you use
+them, ensure that whatever happens, the output of the migration up sequence is always the same. A
+change of output in a migration M may cause a migration M + x, x > 0, to no longer work as intended.
 - Test your migration locally and your staging environment before releasing to production!
-- Mistakes happen. If you pushed to production and applying 'down' is not possible, we recommend creating a new migration file to patch the issue.
+- Mistakes happen. If you pushed to production and applying 'down' is not possible, we recommend
+creating a new migration file to patch the issue.
   - If that is not possible, restore your database to a previous point-in-time (backup).
+
+### FAQ
+
+1. How do I bundle my migrations in the final function bundle?
+
+    > How you bundle your migrations depends on your overall language choices and how you choose
+    > to set up your Appwrite Function source repository structure. My personal setup using
+    > a Bun based functions has the following Function Configurations.
+    > Please note that appwrite does not allow you to do `newline` with continuation markers `\` like
+    > I did in the example below example (for readability purposes). It expects the entire command
+    > to be written in one line.
+
+    ```code
+    Entrypoint: dist/database/migrations-create-collection.js
+    Build Settings: \
+      bun install --production \
+      && bun build ./functions/database/migrations-create-collection.ts --outdir ./dist/database \
+      && cp -r ./functions/database/migrations ./dist/database/migrations
+    ```
