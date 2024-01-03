@@ -104,7 +104,7 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 
 ### Rules
 
-- Migrations **must** complete within Appwrite Cloud defined timeout of 15s.
+- Migrations **must** complete within Appwrite Cloud defined timeout for the function (default is 15s).
   - Longer migrations should be run from local maching, by exporting variables in your `.env.local` for example.
 - **Never** change the file name of a migration file.
 - **Never** change the class name of a migration class.
