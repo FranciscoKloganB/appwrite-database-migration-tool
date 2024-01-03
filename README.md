@@ -167,11 +167,13 @@ creating a new migration file to patch the issue.
     > Please note that appwrite does not allow you to do `newline` with continuation markers `\` like
     > I did in the example below example (for readability purposes). It expects the entire command
     > to be written in one line.
+    > The `copy` command will only work if the folder already exists in your remote repository.
 
     ```code
-    Entrypoint: dist/database/migrations-create-collection.js
+    Entrypoint: ./dist/database/migrations-run-sequence.js
     Build Settings: \
       bun install --production \
-      && bun build ./functions/database/migrations-create-collection.ts --outdir ./dist/database \
-      && cp -r ./functions/database/migrations ./dist/database/migrations
+      && bun build ./functions/database/migrations-run-sequence.ts --outdir ./dist/database \
+      && mkdir ./dist/database/migrations \
+      && cp -r ./functions/database/migrations ./dist/database/migrations ;
     ```
