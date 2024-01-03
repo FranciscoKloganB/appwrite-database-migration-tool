@@ -4,12 +4,12 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 
 ## Roadmap to v1.0.0
 
-- [] Run codegen implementation from a consuming project;
-- [] Run the setup implementation against live Appwrite databases from a consuming project;
-- [] Run the run migration sequence implementation against live Appwrite databases from a consuming project;
-- [] Create one down sequence flow
-- [] Run the one down sequence flow against live Appwrite databases from consuming proeject;
-- [] Add integration tests with mocked Appwrite responses using MSW;
+- [x] Run codegen implementation from a consuming project;
+- [ ] Run the setup implementation against live Appwrite databases from a consuming project;
+- [ ] Run the run migration sequence implementation against live Appwrite databases from a consuming project;
+- [ ] Create one down sequence flow
+- [ ] Run the one down sequence flow against live Appwrite databases from consuming proeject;
+- [ ] Add integration tests with mocked Appwrite responses using MSW;
 
 ## Setting up
 
@@ -56,16 +56,18 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
     ```
 
 - Each function will require access to the following environment variables.
-  - You can set them globally in your Appwrite project or scope them to each function.
-  - _**Warning:** Ensure the values match across functions, if you opted for the scoped approach._
-  - _**Warning:** Ensure the config does not change, if you ran the `runMigrationSequence` at least once._
-  - _**Warning:** Config can be changed anytime. We don't recommended it. Mistakes can cause synch issues._
+  - You can set **them globally in your Appwrite project settings** or scope them to each function.
+  - **Ensure** the values match across functions, if you opted for the scoped approach.
+  - **Ensure** the config does not change over time, if you ran the `runMigrationSequence` at least once.
+    - Not that the config can be changed, but we do not recommended it, unless you planned a transition. Mistakes can leave your application in incosistent states.
 
   ```properties
   # Required
   APPWRITE_API_KEY=<your-appwrite-api-key>
   # Required
   APPWRITE_ENDPOINT=<your-appwrite-endpoint>
+  # Required (when running locally instead of a serverless function environment)
+  APPWRITE_FUNCTION_PROJECT_ID=<your-appwrite-project-id>
   # Required
   MIGRATIONS_DATABASE_ID=<database-id>
   # Defaults to 'appwritedatabasemigrationtool'
@@ -91,26 +93,35 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
     - Do not use underscores
 
   ```bash
-  npx @franciscokloganb/appwrite-database-migration-tool/codegen/migration.js \
-    <relative-path-to-your-migration folder> \
-    <short-migration-description> ;
+  # E.g.: npx admt new-migration --outpath ./functions/database/migrations --descriptor initial
+  npx admt new-migration --outpath <relative-path> --descriptor <migration-summary>
   ```
 
 - Use the `databaseService` parameter of `up` and `down`, which is an instance of `node-appwrite` Databases class, to define your migration file contents.
 - Once you are done, deploy your changes and execute the `Run Migration Sequence` function.
 
-## Best Practises for Database Migration
+## Appwrite Database Migration Tool Recommendations and Rules
 
-**There are recommendations that will help keep your team sane and safe.**
+### Rules
 
-- Always provide a meaningful descriptor for your migration.
-- Attempt to follow the single-responsibility principle. Appwrite Cloud does not provide us with direct database access. That means we do not have real transaction mechanisms. Consequently, we recommend doing migrations in small steps. Remember, Appwrite Cloud Functions timeout after 15s, and you cannot perform a transaction over several collections and easily rollback all changes if something in that transaction fails.
-- Always follow the expand-and-contract pattern, if required. Read [here](https://www.prisma.io/dataguide/types/relational/expand-and-contract-pattern).
-- Never change the file name of a migration file.
-- Never change the class name of a migration class.
-- Never change the contents of a migration that you have pushed to a production-like environment.
-- Avoid abstractions in your migration files. They are subject to change in the future. If you use them, ensure that whatever happens, the output of the migration up sequence is always the same regardless. A change of output in a migration M may cause a migration M + x, x > 0, to no longer work as intended.
+- Migrations **must** complete within Appwrite Cloud defined timeout of 15s.
+  - Longer migrations should be run from local maching, by exporting variables in your `.env.local` for example.
+- **Never** change the file name of a migration file.
+- **Never** change the class name of a migration class.
+- **Always** use codegen tools to create new migration files or other supported operations.
+
+### Recommendations
+
+- Avoid changing the contents of a migration that you have pushed to a production-like environment.
+  - Unless you can confidently revert the database state (e.g.: staging) without affecting end-users.
+- Provide a meaningful descriptions for your migration using the `--descriptor` flag.
+  - Keep them short, like `git commit` messages.
+- Follow the expand-and-contract pattern.
+  - Read [here](https://www.prisma.io/dataguide/types/relational/expand-and-contract-pattern).
+- Follow the single-responsibility principle.
+  - We do not have direct access to Appwrite's MariaDB instances, thus no real transaction mechanisms are used.
+  - It's better to do incremental migrations then one migration that might leave your app in an inconsistent state. Plan your migrations!
+- Avoid abstractions in your migration files. They are subject to change in the future. If you use them, ensure that whatever happens, the output of the migration up sequence is always the same. A change of output in a migration M may cause a migration M + x, x > 0, to no longer work as intended.
 - Test your migration locally and your staging environment before releasing to production!
-- Mistakes happen. If you pushed to production and applying 'down' is not possible, we recommend creating a new migration file to patch the issue. If that is not possible, restore your database to a previous point-in-time (backup) and apologize to your users.
-
-**See also:** [Prisma - Expand and Contract Pattern](https://www.prisma.io/dataguide/types/relational/expand-and-contract-pattern)
+- Mistakes happen. If you pushed to production and applying 'down' is not possible, we recommend creating a new migration file to patch the issue.
+  - If that is not possible, restore your database to a previous point-in-time (backup).
