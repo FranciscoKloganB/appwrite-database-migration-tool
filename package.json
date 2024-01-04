@@ -49,7 +49,9 @@
   "files": [
     "dist"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@franciscokloganb/appwrite-database-migration-tool": "^0.2.1"
+  },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
@@ -120,5 +122,5 @@
     "up:install": "taze major --install && npx taze -w && npm i"
   },
   "type": "module",
-  "version": "0.2.1"
+  "version": "0.2.2"
 }
