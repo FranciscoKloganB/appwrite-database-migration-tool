@@ -1,4 +1,4 @@
-import { Client, Databases } from 'node-appwrite';
+import { AppwriteException, Client, Databases } from 'node-appwrite';
 import invariant from 'tiny-invariant';
 
 import { MIGRATIONS_COLLECTION_ID, MIGRATIONS_COLLECTION_NAME } from './constants';
@@ -34,10 +34,19 @@ function configuration() {
 }
 
 async function migrationCollectionExists(db: Databases, databaseId: string, collectionId: string) {
-  return await db
-    .getCollection(databaseId, collectionId)
-    .then(() => true)
-    .catch(() => false);
+  try {
+    await db.getCollection(databaseId, collectionId);
+
+    return true;
+  } catch (e) {
+    if (e instanceof AppwriteException) {
+      e.message.includes('Collection with the requested ID could not be found');
+
+      return false;
+    }
+
+    throw e;
+  }
 }
 
 export async function createMigrationCollection({ log, error }: { log: Logger; error: Logger }) {
