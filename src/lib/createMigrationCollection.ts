@@ -33,6 +33,13 @@ function configuration() {
   };
 }
 
+function migrationCollectionExists(db: Databases, databaseId: string, collectionId: string) {
+  return db
+    .getCollection(databaseId, collectionId)
+    .then(() => true)
+    .catch(() => false);
+}
+
 export async function createMigrationCollection({ log, error }: { log: Logger; error: Logger }) {
   log('Create migration collection started.');
 
@@ -44,9 +51,13 @@ export async function createMigrationCollection({ log, error }: { log: Logger; e
 
   const databaseService = new Databases(client);
 
-  const collection = await databaseService.getCollection(databaseId, collectionId);
+  const collectionExists = await migrationCollectionExists(
+    databaseService,
+    databaseId,
+    collectionId,
+  );
 
-  if (collection) {
+  if (collectionExists) {
     log('Create migration collection exited. Collection already exists.');
 
     return;
