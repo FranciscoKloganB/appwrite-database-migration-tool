@@ -38,7 +38,11 @@ export async function runMigrationSequence({ log, error }: { log: Logger; error:
   log('Run migration sequence started.');
 
   const { apiKey, collectionId, databaseId, endpoint, projectId } = configuration();
+
+  log(`Initiating client. Endpoint: ${endpoint}, ProjectID: ${projectId}`);
+
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
+
   const databaseService = new Databases(client);
 
   const collection = await databaseService.getCollection(databaseId, collectionId);

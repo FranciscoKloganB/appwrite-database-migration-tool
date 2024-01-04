@@ -38,6 +38,8 @@ export async function createMigrationCollection({ log, error }: { log: Logger; e
 
   const { endpoint, apiKey, databaseId, collectionId, collectionName, projectId } = configuration();
 
+  log(`Initiating client. Endpoint: ${endpoint}, ProjectID: ${projectId}`);
+
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
 
   const databaseService = new Databases(client);
