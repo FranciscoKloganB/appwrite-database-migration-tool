@@ -49,9 +49,6 @@
   "files": [
     "dist"
   ],
-  "dependencies": {
-    "@franciscokloganb/appwrite-database-migration-tool": "^0.2.1"
-  },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
