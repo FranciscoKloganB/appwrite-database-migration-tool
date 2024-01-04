@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.2.0...v0.2.1) (2024-01-04)
+
+
+### Bug Fixes
+
+* **createMigrationCollection:** add missing await keyword ([58fcaba](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/58fcabaa02a2e4603f667e8938f61bec0ecda8a9))
+
 ## [0.2.0](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.1.4...v0.2.0) (2024-01-04)
 
 
