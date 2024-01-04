@@ -50,6 +50,8 @@ to use the Appwrite Database Migration Tool processes.
       log: ctx.log,
       error: ctx.error,
     })
+
+    return ctx.res.empty();
   }
   ```
 
@@ -66,6 +68,8 @@ to use the Appwrite Database Migration Tool processes.
         log: ctx.log,
         error: ctx.error,
       })
+
+      return ctx.res.empty();
     }
     ```
 
