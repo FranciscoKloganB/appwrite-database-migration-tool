@@ -4,10 +4,10 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 
 ## Roadmap to v1.0.0
 
-- [x] Run codegen implementation from a consuming project;
-- [ ] Run the setup implementation against live Appwrite databases from a consuming project;
-- [ ] Run the Migrations Run Sequence implementation against live Appwrite databases from a consuming project;
-- [ ] Create one down sequence flow
+- [x] Follow the setup steps from a consumer perspective on a live project;
+- [x] Run codegen implementation from a consumer project;
+- [x] Run the Migrations Create Collection from a consumer project;
+- [ ] Run the Migrations Run Sequence from a consumer project;
 - [ ] Run the one down sequence flow against live Appwrite databases from consuming proeject;
 - [ ] Add integration tests with mocked Appwrite responses using MSW;
 
