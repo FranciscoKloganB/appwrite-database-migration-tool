@@ -33,8 +33,8 @@ function configuration() {
   };
 }
 
-function migrationCollectionExists(db: Databases, databaseId: string, collectionId: string) {
-  return db
+async function migrationCollectionExists(db: Databases, databaseId: string, collectionId: string) {
+  return await db
     .getCollection(databaseId, collectionId)
     .then(() => true)
     .catch(() => false);
