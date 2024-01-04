@@ -180,3 +180,13 @@ creating a new migration file to patch the issue.
       && mkdir ./dist/database/migrations \
       && cp -r ./functions/database/migrations ./dist/database/migrations ;
     ```
+
+2. I am getting scope errors when I execute the functions.
+
+   > When we create an Appwrite Server Client (node-appwrite SDK), we use the APPWRITE_API_KEY you
+   > provide to set it up. If you are getting scope errors, similar to these ones
+   > "Error: <app.xxxxxxxxxx@service.cloud.appwrite.io> (role: applications) missing scope
+   > (collections.read)", it's because you need to add more scopes to your APPWRITE_API_KEY.
+   > You can do that by accessing `Project > Settings > API credentials > View API Keys > { Select
+   > API KEY } > Scopes`; From here onwards, you need to add the scopes that are missing.
+
