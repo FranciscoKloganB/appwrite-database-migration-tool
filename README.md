@@ -160,6 +160,9 @@ creating a new migration file to patch the issue.
 ### FAQ
 
 1. How do I bundle my migrations in the final function bundle?
+  a. Please note that currently Bun as an upstream issue with Axios, and fails to execute our
+  functions due to missing `http` adapters. You can track that issue here: <https://github.com/oven-sh/bun/issues/3371>,
+  in the mean time I suggest you use plain `.js` files.
 
     > How you bundle your migrations depends on your overall language choices and how you choose
     > to set up your Appwrite Function source repository structure. My personal setup using

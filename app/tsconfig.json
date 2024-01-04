@@ -2,7 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "Node",
     "lib": ["dom", "dom.iterable", "esnext"],
     "target": "es6",
     "allowJs": true,
