@@ -3,12 +3,12 @@ import type { Databases } from 'node-appwrite';
 export interface IMigrationEntity {
   $id: string | null;
   applied: boolean | null;
-  instance: IMigrationFile | null;
+  instance: IMigrationFileEntity | null;
   name: string;
   timestamp: number;
 }
 
-export interface IMigrationFile {
+export interface IMigrationFileEntity {
   /** Applies the migrations. */
   up(databaseService: Databases): Promise<void>;
   /** Reverse the migrations. */

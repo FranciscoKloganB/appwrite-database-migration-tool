@@ -1,11 +1,11 @@
 import type { Databases } from 'node-appwrite';
 
-import type { IMigrationFile } from '@lib/repositories';
+import type { IMigrationFileEntity } from '@lib/repositories';
 
 export type MigrationProps = {
   applied: boolean;
   id: string;
-  instance: IMigrationFile;
+  instance: IMigrationFileEntity;
   name: string;
   timestamp: number;
 };
@@ -16,7 +16,7 @@ export class Migration {
   /** An appwrite document ID */
   #id: string;
   /** An instance of the migration file that matches this entity */
-  #instance: IMigrationFile;
+  #instance: IMigrationFileEntity;
   /** The name of the migration (class name) which is also the name in the appwrite document */
   #name: string;
   /** The timestamp in which the migration was applied if it was applied, it probably does not match class name timestamp */
@@ -25,7 +25,7 @@ export class Migration {
   public constructor(
     applied: boolean,
     id: string,
-    instance: IMigrationFile,
+    instance: IMigrationFileEntity,
     name: string,
     timestamp: number,
   ) {

@@ -1,11 +1,11 @@
 import { createMock } from '@golevelup/ts-jest';
 
-import type { IMigrationFile } from '@lib/repositories/interfaces';
+import type { IMigrationFileEntity } from '@lib/repositories/interfaces';
 
 import { MigrationEntity } from './MigrationEntity';
 
 describe('MigrationEntity', () => {
-  const instanceMock = createMock<IMigrationFile>();
+  const instanceMock = createMock<IMigrationFileEntity>();
 
   const baseLocalDocumentProps: Parameters<typeof MigrationEntity.createFromLocalDocument>[0] = {
     instance: instanceMock,

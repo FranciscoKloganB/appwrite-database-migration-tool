@@ -1,8 +1,8 @@
 import type { Databases } from 'node-appwrite';
 
-import type { IMigrationFile } from '@lib/repositories/interfaces';
+import type { IMigrationFileEntity } from '@lib/repositories/interfaces';
 
-export class MigrationFileEntity implements IMigrationFile {
+export class MigrationFileEntity implements IMigrationFileEntity {
   up(databaseService: Databases): Promise<void> {
     throw new Error('Method not implemented.');
   }

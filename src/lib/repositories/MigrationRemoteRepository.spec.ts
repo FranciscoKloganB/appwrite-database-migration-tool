@@ -4,7 +4,7 @@ import { Databases } from 'node-appwrite';
 import { createId } from '@lib/utils';
 
 import { MigrationEntity } from './entities';
-import type { IMigrationFile } from './interfaces';
+import type { IMigrationFileEntity } from './interfaces';
 import { MigrationRemoteRepository } from './MigrationRemoteRepository';
 
 describe('MigrationRemoteRepository', () => {
@@ -13,7 +13,7 @@ describe('MigrationRemoteRepository', () => {
   const error = jest.fn();
   const log = jest.fn();
 
-  const migrationFile = createMock<IMigrationFile>();
+  const migrationFile = createMock<IMigrationFileEntity>();
   const databaseService = createMock<Databases>();
   const testSubject = MigrationRemoteRepository.create({
     databaseId,
