@@ -19,7 +19,13 @@ module.exports = {
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   overrides: [
     {
-      files: './**/functions/**/*.ts',
+      files: './**/functions/**/*.{js,ts}',
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
+      },
+    },
+    {
+      files: './**/*.{spec,test}.{js,ts}',
       rules: {
         '@typescript-eslint/no-explicit-any': 'off',
       },

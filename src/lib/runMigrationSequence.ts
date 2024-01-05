@@ -5,6 +5,7 @@ import { MIGRATIONS_COLLECTION_ID, MIGRATIONS_COLLECTION_NAME } from './constant
 import { MigrationService } from './domain';
 import { MigrationLocalRepository, MigrationRemoteRepository } from './repositories';
 import type { Logger } from './types';
+import { migrationCollectionExists } from './utils';
 
 function configuration() {
   const apiKey = process.env['APPWRITE_API_KEY'];
@@ -45,9 +46,13 @@ export async function runMigrationSequence({ log, error }: { log: Logger; error:
 
   const databaseService = new Databases(client);
 
-  const collection = await databaseService.getCollection(databaseId, collectionId);
+  const collectionExists = await migrationCollectionExists(
+    databaseService,
+    databaseId,
+    collectionId,
+  );
 
-  if (!collection) {
+  if (!collectionExists) {
     error(
       'Run migration sequence exited. Collection does not exist. Please run Create Migration Collection first.',
     );
