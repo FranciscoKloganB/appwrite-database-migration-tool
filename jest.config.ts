@@ -17,12 +17,16 @@ const config: JestConfigWithTsJest = {
       lines: 90,
     },
   },
+  modulePathIgnorePatterns: ['<rootDir>/app/', '<rootDir>/dist/'],
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths, {
+      prefix: '<rootDir>/',
+    }),
+    'tiny-invariant': '<rootDir>/node_modules/tiny-invariant/src/tiny-invariant.flow.js',
+  },
   testEnvironment: 'node',
   testPathIgnorePatterns: ['<rootDir>/jest.config.ts', '<rootDir>/src/index.ts'],
-  modulePathIgnorePatterns: ['<rootDir>/app/', '<rootDir>/dist/'],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
-    prefix: '<rootDir>/',
-  }),
+  transformIgnorePatterns: ['/node_modules/(?!tiny-invariant)'],
 };
 
 export default config;

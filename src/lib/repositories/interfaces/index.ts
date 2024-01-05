@@ -1,7 +1,5 @@
 import type { Databases } from 'node-appwrite';
 
-import type { MigrationEntity } from '@lib/repositories/entities';
-
 export interface IMigrationEntity {
   $id: string | null;
   applied: boolean | null;
@@ -18,7 +16,7 @@ export interface IMigrationFile {
 }
 
 export interface IMigrationRepository {
-  deleteMigration(migration: MigrationEntity): Promise<boolean>;
-  insertMigration(migration: MigrationEntity): Promise<MigrationEntity>;
-  listMigrations(): Promise<MigrationEntity[]>;
+  deleteMigration(migration: IMigrationEntity): Promise<boolean>;
+  insertMigration(migration: IMigrationEntity): Promise<IMigrationEntity>;
+  listMigrations(): Promise<IMigrationEntity[]>;
 }

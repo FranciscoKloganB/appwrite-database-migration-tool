@@ -189,22 +189,22 @@ export class MigrationService {
 
   /** TODO Runs application routines after the execution of all migrations (before exitting) */
   protected async afterAll(): Promise<void> {
-    throw new Error('Not implemented');
+    throw new Error('Method not implemented.');
   }
 
   /** TODO Runs applicational routines after migration completes successfully */
   protected async afterOneCompleted(_: MigrationEntity): Promise<void> {
-    throw new Error('Not implemented');
+    throw new Error('Method not implemented.');
   }
 
   /** TODO Runs applicational routines and cleanup after migration fails to complete */
   protected async afterOneFailed(_: MigrationEntity): Promise<void> {
-    throw new Error('Not implemented');
+    throw new Error('Method not implemented.');
   }
 
   /** TODO Runs applicational routines and sets up the executor before executing migrations */
   protected async beforeAll(): Promise<void> {
-    throw new Error('Not implemented');
+    throw new Error('Method not implemented.');
   }
 
   /* -------------------------------------------------------------------------- */

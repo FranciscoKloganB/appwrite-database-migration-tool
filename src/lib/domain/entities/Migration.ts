@@ -22,7 +22,7 @@ export class Migration {
   /** The timestamp in which the migration was applied if it was applied, it probably does not match class name timestamp */
   #timestamp: number;
 
-  private constructor(
+  public constructor(
     applied: boolean,
     id: string,
     instance: IMigrationFile,

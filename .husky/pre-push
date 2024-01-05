@@ -4,4 +4,4 @@
 . "$(dirname "$0")/common.sh"
 
 npm run typecheck
-# npm run test:ci
+npm run test:ci

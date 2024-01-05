@@ -1,7 +1,7 @@
 import type { Databases, Models } from 'node-appwrite';
 
 import type { Logger } from '@lib/types';
-import { createId, isRecord } from '@lib/utils';
+import { isRecord } from '@lib/utils';
 
 import { MigrationEntity } from './entities';
 import type { IMigrationRepository } from './interfaces';
@@ -55,7 +55,9 @@ export class MigrationRemoteRepository implements IMigrationRepository {
 
   public async deleteMigration(migration: MigrationEntity) {
     if (!migration.$id) {
-      throw new TypeError('deleteMigration: Expected entity to have property `id` of type string');
+      throw new TypeError(
+        'Can not delete migration. Expected entity to have property `id` of type string',
+      );
     }
 
     await this.#databaseService.deleteDocument(this.#databaseId, this.#collectionId, migration.$id);
@@ -64,16 +66,20 @@ export class MigrationRemoteRepository implements IMigrationRepository {
   }
 
   public async insertMigration(migration: MigrationEntity) {
-    const documentId = createId();
-
-    const document = (await this.#databaseService.createDocument(
+    const document = await this.#databaseService.createDocument(
       this.#databaseId,
       this.#collectionId,
-      documentId,
+      migration.$id,
       migration.value,
-    )) as MigrationDocument;
+    );
 
-    return MigrationEntity.createFromRemoteDocument({ ...document, id: document.$id });
+    if (this.isMigrationEntity(document)) {
+      return MigrationEntity.createFromRemoteDocument({ ...document, id: document.$id });
+    }
+
+    throw new Error(
+      'Migration inserted resulted in malformed Migration document. This should not possible.',
+    );
   }
 
   public async listMigrations() {

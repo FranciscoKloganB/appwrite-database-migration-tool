@@ -4,10 +4,10 @@ import type { IMigrationFile } from '@lib/repositories/interfaces';
 
 export class MigrationFileEntity implements IMigrationFile {
   up(databaseService: Databases): Promise<void> {
-    throw Error('Method not implemented.');
+    throw new Error('Method not implemented.');
   }
 
   down(databaseService: Databases): Promise<void> {
-    throw Error('Method not implemented.');
+    throw new Error('Method not implemented.');
   }
 }

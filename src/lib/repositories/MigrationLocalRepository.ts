@@ -1,9 +1,10 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import invariant from 'tiny-invariant';
 
 import { MIGRATIONS_HOME } from '@lib/constants';
 import type { Logger } from '@lib/types';
+import { isClass } from '@lib/utils/type-guards';
 
 import { MigrationEntity } from './entities';
 import type { MigrationFileEntity } from './entities/MigrationFileEntity';
@@ -14,15 +15,13 @@ type MigrationLocalRepositoryProps = {
   log: Logger;
 };
 
-const migrationsHome = process.env['MIGRATIONS_HOME'] ?? MIGRATIONS_HOME;
-invariant(migrationsHome, 'MIGRATIONS_HOME');
-
 export class MigrationLocalRepository implements IMigrationRepository {
   /** A function that can be used to log error messages */
   readonly #error: Logger;
   /** A function that can be used to log information messages */
   readonly #log: Logger;
-
+  /** A relative path to the location where local Migration documents can be found */
+  readonly #store: string;
   /* -------------------------------------------------------------------------- */
   /*                                 constructor                                */
   /* -------------------------------------------------------------------------- */
@@ -30,6 +29,9 @@ export class MigrationLocalRepository implements IMigrationRepository {
   private constructor(props: MigrationLocalRepositoryProps) {
     this.#error = props.error;
     this.#log = props.log;
+    this.#store = process.env['MIGRATIONS_HOME'] ?? MIGRATIONS_HOME;
+
+    invariant(this.#store, 'MIGRATIONS_HOME');
   }
 
   static create(props: MigrationLocalRepositoryProps) {
@@ -41,29 +43,32 @@ export class MigrationLocalRepository implements IMigrationRepository {
   /* -------------------------------------------------------------------------- */
 
   async deleteMigration(_: MigrationEntity): Promise<boolean> {
-    throw new Error('Method not implemented');
+    throw new Error('Method not implemented.');
   }
 
   async insertMigration(_: MigrationEntity): Promise<MigrationEntity> {
-    throw new Error('Method not implemented');
+    throw new Error('Method not implemented.');
   }
 
   async listMigrations() {
-    const files = await this.getFiles(path.join(process.cwd(), migrationsHome), ['js', 'ts']);
-    const imports = files.map((file) => import(path.resolve(migrationsHome, file)));
+    const folder = path.join(process.cwd(), this.#store);
+    const files = await this.getFiles(folder, ['js', 'ts']);
+    const imports = files.map((file) => import(path.resolve(this.#store, file)));
     const modules = await Promise.all(imports);
 
-    return modules.filter(this.isMigrationFileClass).map((Class) => {
-      const instance = new Class();
-      const name = instance.constructor.name;
-      const timestamp = this.getTimestampFromClassname(name);
+    return modules
+      .filter((module) => this.isMigrationFileClass(module.default))
+      .map((module) => {
+        const instance = new module.default();
+        const name = instance.constructor.name;
+        const timestamp = this.getTimestampFromClassname(name);
 
-      return MigrationEntity.createFromLocalDocument({
-        instance,
-        name,
-        timestamp,
+        return MigrationEntity.createFromLocalDocument({
+          instance,
+          name,
+          timestamp,
+        });
       });
-    });
   }
 
   /* -------------------------------------------------------------------------- */
@@ -81,20 +86,14 @@ export class MigrationLocalRepository implements IMigrationRepository {
   }
 
   private isMigrationFileClass(value: unknown): value is typeof MigrationFileEntity {
-    return (
-      typeof value === 'function' &&
-      !!value.prototype &&
-      !!value.prototype.constructor.name &&
-      'up' in value.prototype &&
-      'down' in value.prototype
-    );
+    return isClass(value) && 'up' in value.prototype && 'down' in value.prototype;
   }
 
   private getTimestampFromClassname(name: string) {
     const matches = name.match(/_(\d+)_/);
 
-    if (matches && matches.length === 3) {
-      return Number(matches[1]);
+    if (matches && typeof matches.at(1) === 'string') {
+      return Number(matches.at(1));
     }
 
     throw new Error(
