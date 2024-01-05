@@ -26,7 +26,8 @@ describe('MigrationEntity', () => {
 
       expect(entity).toBeInstanceOf(MigrationEntity);
 
-      expect(entity.$id).toBeNull();
+      expect(typeof entity.$id).toEqual('string');
+      expect(entity.$id).toHaveLength(20);
       expect(entity.applied).toBeNull();
       expect(entity.instance).toBe(baseLocalDocumentProps.instance);
       expect(entity.name).toBe(baseLocalDocumentProps.name);
