@@ -14,7 +14,7 @@ export function newMigration({ outpath, descriptor }: { outpath: string; descrip
 // @ts-check
 import { MigrationFileEntity } from '@franciscokloganb/appwrite-database-migration-tool';
 
-export default class ${className} extends MigrationFileEntity {
+class ${className} extends MigrationFileEntity {
   constructor() {
     super();
   }
@@ -29,6 +29,8 @@ export default class ${className} extends MigrationFileEntity {
     throw new Error('Method not implemented.');
   }
 }
+
+export default ${className};
 `.trim();
 
   // Create directories if they don't exist
