@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.3.0](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.2.8...v0.3.0) (2024-01-06)
+
+
+### Features
+
+* **domain:** create DatabaseSerive, exposing defined databaseId ([a19fc16](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/a19fc16b4b25b445df98e44e9fdf8a403e5e828d))
+
 ### [0.2.8](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.2.7...v0.2.8) (2024-01-05)
 
 ### [0.2.7](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.2.6...v0.2.7) (2024-01-05)
