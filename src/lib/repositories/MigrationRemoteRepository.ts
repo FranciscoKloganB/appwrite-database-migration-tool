@@ -1,5 +1,6 @@
-import type { Databases, Models } from 'node-appwrite';
+import type { Models } from 'node-appwrite';
 
+import { DatabaseService } from '@lib/domain';
 import type { Logger } from '@lib/types';
 import { isRecord } from '@lib/utils';
 
@@ -9,7 +10,7 @@ import type { IMigrationRepository } from './interfaces';
 type MigrationRemoteRepositoryProps = {
   databaseId: string;
   collectionId: string;
-  databaseService: Databases;
+  databaseService: DatabaseService;
   error: Logger;
   log: Logger;
 };
@@ -27,7 +28,7 @@ export class MigrationRemoteRepository implements IMigrationRepository {
   /** The ID database against which migrations files will be ran */
   readonly #databaseId: string;
   /** An instance of Appwrite Databases to be as a database service */
-  readonly #databaseService: Databases;
+  readonly #databaseService: DatabaseService;
   /** A function that can be used to log error messages */
   readonly #error: Logger;
   /** A function that can be used to log information messages */

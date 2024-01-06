@@ -125,7 +125,8 @@ through JSDocs (works just like TypeScript) without needing you to do transpilat
   ```
 
 - Use the `databaseService` parameter of `up` and `down` to write your migration.
-  - The parameter is an instance of `node-appwrite` Databases class.
+  - The parameter is an instance of a subclass of `node-appwrite` Databases class.
+  - The subclass provides some utility methods and properties on top of the normal `Databases`.
 - Once you are done, deploy push your changes through the environment pipelines.
   - E.g.: Push to `staging` execute the `Migrations Run Sequence` function on Appwrite UI. Verify all
   is good. Finally push to `production` and run the sequence there.

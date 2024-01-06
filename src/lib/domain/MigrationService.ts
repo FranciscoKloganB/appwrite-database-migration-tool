@@ -1,10 +1,9 @@
-import type { Databases } from 'node-appwrite';
-
 import type { MigrationEntity } from '@lib/repositories/entities';
 import type { IMigrationEntity, IMigrationRepository } from '@lib/repositories/interfaces';
 import type { Logger, TransactionMode } from '@lib/types';
 import { createId } from '@lib/utils';
 
+import { DatabaseService } from '.';
 import { Migration, type MigrationProps } from './entities';
 
 type MigrationServiceProps = {
@@ -138,7 +137,7 @@ export class MigrationService {
    *
    * Pending migrationss are the ones in our local system but not stored as a document on Appwrite collection
    */
-  async executePendingMigrations(databaseService: Databases) {
+  async executePendingMigrations(databaseService: DatabaseService) {
     this.#log(`Applying pending migrations...`);
 
     for await (const migration of this.pendingMigrations) {
@@ -159,7 +158,7 @@ export class MigrationService {
   }
 
   /** Reverts last migration that were executed */
-  async undoLastMigration(databaseService: Databases) {
+  async undoLastMigration(databaseService: DatabaseService) {
     this.#log(`Undoing last applied migration...`);
 
     const migration = this.executedMigrations.at(-1);

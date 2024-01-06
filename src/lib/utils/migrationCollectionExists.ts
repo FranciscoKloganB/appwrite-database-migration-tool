@@ -1,12 +1,14 @@
-import { AppwriteException, Databases } from 'node-appwrite';
+import { AppwriteException } from 'node-appwrite';
+
+import { DatabaseService } from '@lib/domain';
 
 export async function migrationCollectionExists(
-  db: Databases,
+  databaseService: DatabaseService,
   databaseId: string,
   collectionId: string,
 ) {
   try {
-    await db.getCollection(databaseId, collectionId);
+    await databaseService.getCollection(databaseId, collectionId);
 
     return true;
   } catch (e) {

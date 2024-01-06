@@ -1,11 +1,12 @@
 import { createMock } from '@golevelup/ts-jest';
-import type { Databases } from 'node-appwrite';
+
+import { DatabaseService } from '@lib/domain';
 
 import { MigrationFileEntity } from './MigrationFileEntity';
 
 describe('MigrationFileEntity', () => {
   const errorMessage = 'Method not implemented.';
-  const databaseService = createMock<Databases>();
+  const databaseService = createMock<DatabaseService>();
 
   const entity = new MigrationFileEntity();
 

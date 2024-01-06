@@ -1,7 +1,8 @@
-import { Client, Databases } from 'node-appwrite';
+import { Client } from 'node-appwrite';
 import invariant from 'tiny-invariant';
 
 import { MIGRATIONS_COLLECTION_ID, MIGRATIONS_COLLECTION_NAME } from './constants';
+import { DatabaseService } from './domain';
 import type { Logger } from './types';
 import { migrationCollectionExists } from './utils';
 
@@ -43,7 +44,7 @@ export async function createMigrationCollection({ log, error }: { log: Logger; e
 
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
 
-  const databaseService = new Databases(client);
+  const databaseService = DatabaseService.create({ client, databaseId });
 
   const collectionExists = await migrationCollectionExists(
     databaseService,

@@ -1,6 +1,6 @@
 import { createMock } from '@golevelup/ts-jest';
-import { Databases } from 'node-appwrite';
 
+import { DatabaseService } from '@lib/domain';
 import { createId } from '@lib/utils';
 
 import { MigrationEntity } from './entities';
@@ -14,7 +14,7 @@ describe('MigrationRemoteRepository', () => {
   const log = jest.fn();
 
   const migrationFile = createMock<IMigrationFileEntity>();
-  const databaseService = createMock<Databases>();
+  const databaseService = createMock<DatabaseService>();
   const testSubject = MigrationRemoteRepository.create({
     databaseId,
     collectionId,

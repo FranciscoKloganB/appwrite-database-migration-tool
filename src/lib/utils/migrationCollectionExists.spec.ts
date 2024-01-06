@@ -1,12 +1,14 @@
 import { createMock } from '@golevelup/ts-jest';
-import { AppwriteException, Databases } from 'node-appwrite';
+import { AppwriteException } from 'node-appwrite';
+
+import { DatabaseService } from '@lib/domain';
 
 import { migrationCollectionExists } from './migrationCollectionExists';
 
-describe('migrationCollectionExists', () => {
+describe('collectionExists', () => {
   const databaseId = 'foo';
   const collectionId = 'bar';
-  const databaseService = createMock<Databases>();
+  const databaseService = createMock<DatabaseService>();
 
   beforeEach(() => {
     jest.resetAllMocks();

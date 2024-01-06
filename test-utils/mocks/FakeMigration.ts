@@ -1,5 +1,4 @@
-import type { Databases } from 'node-appwrite';
-
+import { DatabaseService } from '../../lib';
 import { MigrationFileEntity } from '../../src/lib/repositories/entities/MigrationFileEntity';
 
 export default class Migration_1704463536_FakeMigration extends MigrationFileEntity {
@@ -7,11 +6,11 @@ export default class Migration_1704463536_FakeMigration extends MigrationFileEnt
     super();
   }
 
-  async up(_: Databases) {
+  async up(_: DatabaseService) {
     Promise.resolve('up done');
   }
 
-  async down(_: Databases) {
+  async down(_: DatabaseService) {
     Promise.resolve('down done');
   }
 }

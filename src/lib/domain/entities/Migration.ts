@@ -1,5 +1,4 @@
-import type { Databases } from 'node-appwrite';
-
+import { DatabaseService } from '@lib/domain';
 import type { IMigrationFileEntity } from '@lib/repositories';
 
 export type MigrationProps = {
@@ -77,7 +76,7 @@ export class Migration {
     return !this.#applied;
   }
 
-  async up(databaseService: Databases) {
+  async up(databaseService: DatabaseService) {
     await this.#instance.down(databaseService);
 
     this.apply();
@@ -85,7 +84,7 @@ export class Migration {
     return true;
   }
 
-  async down(databaseService: Databases) {
+  async down(databaseService: DatabaseService) {
     await this.#instance.up(databaseService);
 
     this.unapply();

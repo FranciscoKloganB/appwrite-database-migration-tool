@@ -19,13 +19,17 @@ class ${className} extends MigrationFileEntity {
     super();
   }
 
-  /** @param {import('node-appwrite').Databases} databaseService */
-  async up(databaseService) {
+  /**
+   * @param {import('@franciscokloganb/appwrite-database-migration-tool').DatabaseService} dbService
+   */
+  async up(dbService) {
     throw new Error('Method not implemented.');
   }
 
-  /** @param {import('node-appwrite').Databases} databaseService */
-  async down(databaseService) {
+  /**
+   * @param {import('@franciscokloganb/appwrite-database-migration-tool').DatabaseService} dbService
+   */
+  async down(dbService) {
     throw new Error('Method not implemented.');
   }
 }
