@@ -106,7 +106,7 @@ describe('DatabaseService', () => {
     });
 
     it('should return false if database does not exist on Appwrite', async () => {
-      const error = new AppwriteException('Database with the requested ID could not be found.');
+      const error = new AppwriteException('Database not found.');
       getDatabaseSpy.mockRejectedValueOnce(error);
 
       const result = await databaseService.databaseExists();

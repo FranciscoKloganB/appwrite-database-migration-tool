@@ -43,7 +43,7 @@ export class DatabaseService extends Databases {
       return true;
     } catch (e) {
       if (e instanceof AppwriteException) {
-        e.message.includes('Database with the requested ID could not be found');
+        e.message.includes('Database not found');
 
         return false;
       }

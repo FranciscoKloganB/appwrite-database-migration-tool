@@ -205,8 +205,9 @@ creating a new migration file to patch the issue.
 
 1. How do I bundle my migrations in the final function bundle?
   a. Please note that currently Bun as an upstream issue with Axios, and fails to execute our
-  functions due to missing `http` adapters. You can track that issue here: <https://github.com/oven-sh/bun/issues/3371>,
-  in the mean time I suggest you use plain `.js` files.
+  functions due to missing `http` adapters. In the mean time I suggest you use plain `.js` files.
+
+    a. You can track that issue here: <https://github.com/oven-sh/bun/issues/3371>,
 
     > How you bundle your migrations depends on your overall language choices and how you choose
     > to set up your Appwrite Function source repository structure. My personal setup using
@@ -225,7 +226,15 @@ creating a new migration file to patch the issue.
       && cp -r ./functions/database/migrations ./dist/database/migrations ;
     ```
 
-2. I am getting scope errors when I execute the functions.
+2. My migrations are not being found when I execute `MigrationRunSequence`.
+
+  > When Appwrite invokes a serverless function it automatically searches for your entrypoint
+  > starting at `/usr/local/server/src/function/*`. Our code on the other hand, uses
+  > `current working directory` to start searching for files. Appwrite serverless CWD is
+  > `/usr/local/server/*`, meaning you need to modify your `MIGRATIONS_HOME_FOLDER` to consider the
+  > `src` and `function` path segments if applicable.
+
+3. I am getting scope errors when I execute the functions.
 
    > When we create an Appwrite Server Client (node-appwrite SDK), we use the APPWRITE_API_KEY you
    > provide to set it up. If you are getting scope errors, similar to these ones
