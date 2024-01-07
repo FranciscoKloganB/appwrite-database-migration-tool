@@ -139,8 +139,7 @@ export class MigrationService {
    */
   async executePendingMigrations(databaseService: DatabaseService) {
     this.#log(`Will apply ${this.pendingMigrations.length} pending migrations.`);
-    this.#log(`Local entities: ${JSON.stringify(this.#localEntities)}`);
-    this.#log(`Pending migrations: ${JSON.stringify(this.pendingMigrations)}`);
+    this.#log(`Pending queue: ${JSON.stringify(this.pendingMigrations.map((x) => x.name))}`);
 
     for await (const migration of this.pendingMigrations) {
       try {

@@ -56,12 +56,18 @@ export class MigrationLocalRepository implements IMigrationRepository {
     const imports = files.map((file) => import(path.resolve(this.#store, file)));
     const modules = await Promise.all(imports);
 
-    return modules
+    const entities = modules
       .filter((module) => this.isMigrationFileClass(module.default))
       .map((module) => {
         const instance = new module.default();
         const name = instance.constructor.name;
         const timestamp = this.getTimestampFromClassname(name);
+
+        this.#log(
+          `Loaded module (name, timestamp, instance JSON): ${name}, ${timestamp}, ${JSON.stringify(
+            instance,
+          )} `,
+        );
 
         return MigrationEntity.createFromLocalDocument({
           instance,
@@ -69,6 +75,10 @@ export class MigrationLocalRepository implements IMigrationRepository {
           timestamp,
         });
       });
+
+    this.#log(`Local entities retrieved: ${JSON.stringify(entities.map((x) => x.name))}`);
+
+    return entities;
   }
 
   /* -------------------------------------------------------------------------- */

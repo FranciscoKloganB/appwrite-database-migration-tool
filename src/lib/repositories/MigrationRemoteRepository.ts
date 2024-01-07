@@ -89,7 +89,7 @@ export class MigrationRemoteRepository implements IMigrationRepository {
       this.#collectionId,
     );
 
-    return response.documents.map((document) => {
+    const entities = response.documents.map((document) => {
       if (this.isMigrationEntity(document)) {
         return MigrationEntity.createFromRemoteDocument({
           id: document.$id,
@@ -101,6 +101,10 @@ export class MigrationRemoteRepository implements IMigrationRepository {
 
       throw new TypeError(`Unexpected document shape found in migration document ${document.$id}`);
     });
+
+    this.#log(`Remote entities retrieved: ${JSON.stringify(entities.map((x) => x.name))}`);
+
+    return entities;
   }
 
   /* -------------------------------------------------------------------------- */
