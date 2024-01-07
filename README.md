@@ -43,10 +43,10 @@ to use the Appwrite Database Migration Tool processes.
   - Tweak the timeout (default is 15s, increasae it up to a maximum of 15m) in the function settings.
 
   ```ts
-  import { createMigrationCollection } from '@franciscokloganb/appwrite-database-migration-tool'
+  import { migrationsCreateCollection } from '@franciscokloganb/appwrite-database-migration-tool'
 
-  export default async (ctx) => {
-    await createMigrationCollection({
+  export default async function(ctx) {
+    await migrationsCreateCollection({
       log: ctx.log,
       error: ctx.error,
     })
@@ -61,10 +61,10 @@ to use the Appwrite Database Migration Tool processes.
     - An example on what this means is given on [FAQ](#faq) section.
 
     ```ts
-    import { runMigrationSequence } from '@franciscokloganb/appwrite-database-migration-tool'
+    import { migrationsRunSequence } from '@franciscokloganb/appwrite-database-migration-tool'
 
-    export default async (ctx) => {
-      await runMigrationSequence({
+    export default async function(ctx) {
+      await migrationsRunSequence({
         log: ctx.log,
         error: ctx.error,
       })
@@ -86,14 +86,14 @@ inconsistent states.
 
 ```properties
 # Required
+APPWRITE_FUNCTION_PROJECT_ID=<your-appwrite-project-id>
+# Required
 APPWRITE_API_KEY=<your-appwrite-api-key>
 # Required
 APPWRITE_ENDPOINT=<your-appwrite-endpoint>
-# Required (when running locally instead of a serverless function environment)
-APPWRITE_FUNCTION_PROJECT_ID=<your-appwrite-project-id>
-# Required
+# Defaults to 'Public'
 MIGRATIONS_DATABASE_ID=<database-id>
-# Defaults to 'appwritedatabasemigrationtool'
+# Defaults to 'Migrations'
 MIGRATIONS_COLLECTION_ID=<collection-id>
 # Defaults to 'Migrations'
 MIGRATIONS_COLLECTION_NAME=<collection-name>
@@ -105,8 +105,8 @@ MIGRATIONS_HOME_FOLDER=<relative-path-to-folder-where-runner-finds-your-migratio
 
 - Execute `Migrations Create Collection` once and only once per environment/project.
   - We do prevent duplicate creations. 😇
-  - Check that the `Migrations` collection was created with **at least** the following attributes:
-    - `$id`: String
+  - Check that the `Migrations` collection was created with **at least** the following attributes
+  (the `$id` attribute is not explicitly visible on the GUI):
     - `applied`: Boolean
     - `name`: String
     - `timestamp`: Integer
