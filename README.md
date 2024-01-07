@@ -228,11 +228,11 @@ creating a new migration file to patch the issue.
 
 2. My migrations are not being found when I execute `MigrationRunSequence`.
 
-  > When Appwrite invokes a serverless function it automatically searches for your entrypoint
-  > starting at `/usr/local/server/src/function/*`. Our code on the other hand, uses
-  > `current working directory` to start searching for files. Appwrite serverless CWD is
-  > `/usr/local/server/*`, meaning you need to modify your `MIGRATIONS_HOME_FOLDER` to consider the
-  > `src` and `function` path segments if applicable.
+    > When Appwrite invokes a serverless function it automatically searches for your entrypoint
+    > starting at `/usr/local/server/src/function/*`. Our code on the other hand, uses
+    > `current working directory` to start searching for files. Appwrite serverless CWD is
+    > `/usr/local/server/*`, meaning you need to modify your `MIGRATIONS_HOME_FOLDER` to consider the
+    > `src` and `function` path segments if applicable.
 
 3. I am getting scope errors when I execute the functions.
 

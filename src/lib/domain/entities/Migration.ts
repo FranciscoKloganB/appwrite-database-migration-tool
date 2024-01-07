@@ -77,7 +77,7 @@ export class Migration {
   }
 
   async up(databaseService: DatabaseService) {
-    await this.#instance.down(databaseService);
+    await this.#instance.up(databaseService);
 
     this.apply();
 
@@ -85,7 +85,7 @@ export class Migration {
   }
 
   async down(databaseService: DatabaseService) {
-    await this.#instance.up(databaseService);
+    await this.#instance.down(databaseService);
 
     this.unapply();
 

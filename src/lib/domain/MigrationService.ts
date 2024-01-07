@@ -55,11 +55,11 @@ export class MigrationService {
    * Loads all migration document entities from Appwrite and sorts them by Timestamp ASC.
    */
   public async withRemoteEntities() {
-    this.#log('Will retrieved migration data from Appwrite.');
+    this.#log('Will retrieve migration data from Appwrite.');
 
     const entities = await this.#migrationRemoteRepository.listMigrations();
 
-    this.#log('Migration data retrieved from Appwrite.');
+    this.#log(`Migration data retrieved from Appwrite. Found ${entities.length} entries.`);
 
     this.assertNoDuplicateMigrations(entities);
 
@@ -73,11 +73,11 @@ export class MigrationService {
    * Loads all migration document entities from Filesystem and sorts them by Timestamp ASC.
    */
   public async withLocalEntities() {
-    this.#log('Will retrieved migration data from Filesystem.');
+    this.#log('Will retrieve migration data from Filesystem.');
 
     const entities = await this.#migrationLocalRepository.listMigrations();
 
-    this.#log('Migration data retrieved from Filesystem.');
+    this.#log(`Migration data retrieved from Filesystem. Found ${entities.length} entries.`);
 
     this.assertNoDuplicateMigrations(entities);
 
