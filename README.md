@@ -6,8 +6,8 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 
 - [x] Follow the setup steps from a consumer perspective on a live project;
 - [x] Run codegen implementation from a consumer project;
-- [x] Run the Migrations Create Collection from a consumer project;
-- [ ] Run the Migrations Run Sequence from a consumer project;
+- [x] Run the MigrationsCreateCollection from a consumer project;
+- [ ] Run the MigrationsRunSequence from a consumer project;
 - [ ] Run the one down sequence flow against live Appwrite databases from consuming proeject;
 - [ ] Add integration tests with mocked Appwrite responses using MSW;
 
@@ -28,19 +28,27 @@ These steps only need to be made once*.
 
 ### Environment Specific Steps
 
-#### Functions
-
-These steps need to be done per project that represents an applicatio environment in which you want
+These steps need to be done per project that represents an application environment in which you want
 to use the Appwrite Database Migration Tool processes.
 
-- Associate the repository with Appwrite Serverless function source.
-  - [Appwrite Functions Docs](https://appwrite.io/docs/products/functions/deployment).
-  - [Appwrite Functions Video Series (~50m)](https://www.youtube.com/watch?v=UAPt7VBL_T8).
-- Create a Appwrite Database
-  - Not needed if you already have a Database.
-- Create an Appwrite Function, one called `Migrations Create Collection` with the body below.
-  - The function should point at the branch that contains the source for the "environment".
-  - Tweak the timeout (default is 15s, increasae it up to a maximum of 15m) in the function settings.
+#### Functions
+
+Appwrite serverless functions require access to the source code that they need to execute. The source
+is defined in Git repositories. Setups vary from team to team. Some choose to have one repository
+per serverless function (isolation), while others prefer a single repository with a single `package.json`
+for all functions (agility, low maintenance cost), others still, prefer a Monorepository structure
+with all functions in a single repository, each with its own `package.json` (agility, isolation,
+with higher upfront setup cost). No matter the strategy you must associate
+the source repository with Appwrite serverless functions.
+
+- [Appwrite Functions Docs](https://appwrite.io/docs/products/functions/deployment).
+- [Appwrite Functions Video Series (~50m)](https://www.youtube.com/watch?v=UAPt7VBL_T8).
+
+##### MigrationsCreateCollection
+
+Create an Appwrite Function called `MigrationsCreateCollection` with the body below. The function
+should point at the branch that contains the source for the "environment". E.g.: Point at the
+`staging` branch on the `staging` project and point to `main` in the `production` project.
 
   ```ts
   import { migrationsCreateCollection } from '@franciscokloganb/appwrite-database-migration-tool'
@@ -55,23 +63,54 @@ to use the Appwrite Database Migration Tool processes.
   }
   ```
 
-- Create another Appwrite Function, called `Migrations Run Sequence` with the body below.
-  - The function should point at the branch that contains the source for the "environment".
-  - Ensure the migration files you create in the future are included in the final function bundle.
-    - An example on what this means is given on [FAQ](#faq) section.
+##### MigrationsRunSequence
 
-    ```ts
-    import { migrationsRunSequence } from '@franciscokloganb/appwrite-database-migration-tool'
+Create another Appwrite Function called `MigrationsRunSequence` with the body below. The function
+should point at the branch that contains the source for the "environment".
 
-    export default async function(ctx) {
-      await migrationsRunSequence({
-        log: ctx.log,
-        error: ctx.error,
-      })
+- Over time you may want to tweak the timeout for this function
+  - Default is 15s, increasae it up to a maximum of 15m in the function settings.
+- Ensure the migration files created in the future are included in the final function bundle.
+  - An example on what this means is given on [FAQ](#faq) section.
 
-      return ctx.res.empty();
-    }
-    ```
+  ```ts
+  import { migrationsRunSequence } from '@franciscokloganb/appwrite-database-migration-tool'
+
+  export default async function(ctx) {
+    await migrationsRunSequence({
+      log: ctx.log,
+      error: ctx.error,
+    })
+
+    return ctx.res.empty();
+  }
+  ```
+
+#### Functions (Optional)
+
+The functions below are optional. They are required for the `Appwrite Database Migration Tool` to
+work. They exist for convinience when starting a project from scratch. When used, they should be
+created following a strategy similar to the ones outlined in [Functions](#functions).
+
+##### MigrationCreateDatabase
+
+Creates a Database with `name` and `id` matching the environment variable `MIGRATIONS_DATABASE_ID`,
+in the default case it will create a database called `Public`. If you already have a Database
+and you prefer to manage the Migrations collection in it, you do not need this function. You also
+do not need it, if you already created the `Public` manually.
+
+```ts
+import { migrationsCreateDatabase } from '@franciscokloganb/appwrite-database-migration-tool'
+
+export default async function(ctx) {
+  await migrationsCreateDatabase({
+    log: ctx.log,
+    error: ctx.error,
+  })
+
+  return ctx.res.empty();
+}
+```
 
 #### Function Environment Variables
 
@@ -103,7 +142,7 @@ MIGRATIONS_HOME_FOLDER=<relative-path-to-folder-where-runner-finds-your-migratio
 
 #### Finalize ADMT Setup
 
-- Execute `Migrations Create Collection` once and only once per environment/project.
+- Execute `MigrationsCreateCollection` once and only once per environment/project.
   - We do prevent duplicate creations. 😇
   - Check that the `Migrations` collection was created with **at least** the following attributes
   (the `$id` attribute is not explicitly visible on the GUI):
@@ -125,10 +164,10 @@ through JSDocs (works just like TypeScript) without needing you to do transpilat
   ```
 
 - Use the `databaseService` parameter of `up` and `down` to write your migration.
-  - The parameter is an instance of a subclass of `node-appwrite` Databases class.
+  - The `databaseService` is a subclass instance of `Databases` from `node-appwrite`.
   - The subclass provides some utility methods and properties on top of the normal `Databases`.
 - Once you are done, deploy push your changes through the environment pipelines.
-  - E.g.: Push to `staging` execute the `Migrations Run Sequence` function on Appwrite UI. Verify all
+  - E.g.: Push to `staging` execute the `MigrationsRunSequence` function on Appwrite UI. Verify all
   is good. Finally push to `production` and run the sequence there.
 
 ## Usage, Rules, Recommendations and, FAQ
