@@ -3,5 +3,6 @@ export * from './lib/domain';
 export * from './lib/repositories';
 export * from './lib/types';
 export * from './lib/utils';
-export * from './lib/createMigrationCollection';
-export * from './lib/runMigrationSequence';
+export * from './lib/migrationsCreateCollection';
+export * from './lib/migrationsCreateDatabase';
+export * from './lib/migrationsRunSequence';

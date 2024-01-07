@@ -13,7 +13,7 @@ export class DatabaseService extends Databases {
     return new DatabaseService(props.client, props.databaseId);
   }
 
-  get databaseId() {
+  get id() {
     return this.#databaseId;
   }
 

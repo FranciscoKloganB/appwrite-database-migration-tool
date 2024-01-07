@@ -5,7 +5,6 @@ import { MIGRATIONS_COLLECTION_ID, MIGRATIONS_COLLECTION_NAME } from './constant
 import { DatabaseService, MigrationService } from './domain';
 import { MigrationLocalRepository, MigrationRemoteRepository } from './repositories';
 import type { Logger } from './types';
-import { migrationCollectionExists } from './utils';
 
 function configuration() {
   const apiKey = process.env['APPWRITE_API_KEY'];
@@ -35,7 +34,7 @@ function configuration() {
   };
 }
 
-export async function runMigrationSequence({ log, error }: { log: Logger; error: Logger }) {
+export async function migrationsRunSequence({ log, error }: { log: Logger; error: Logger }) {
   log('Run migration sequence started.');
 
   const { apiKey, collectionId, databaseId, endpoint, projectId } = configuration();
@@ -43,14 +42,8 @@ export async function runMigrationSequence({ log, error }: { log: Logger; error:
   log(`Initiating client. Endpoint: ${endpoint}, ProjectID: ${projectId}`);
 
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
-
   const databaseService = DatabaseService.create({ client, databaseId });
-
-  const collectionExists = await migrationCollectionExists(
-    databaseService,
-    databaseId,
-    collectionId,
-  );
+  const collectionExists = databaseService.collectionExists(collectionId);
 
   if (!collectionExists) {
     error(

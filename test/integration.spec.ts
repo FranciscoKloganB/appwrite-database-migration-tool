@@ -1,18 +1,26 @@
-import { createMigrationCollection } from '@lib/createMigrationCollection';
+import { migrationsCreateCollection } from '@lib/migrationsCreateCollection';
+import { migrationsCreateDatabase } from '@lib/migrationsCreateDatabase';
+import { migrationsRunSequence } from '@lib/migrationsRunSequence';
 import { MigrationFileEntity } from '@lib/repositories';
-import { runMigrationSequence } from '@lib/runMigrationSequence';
 
-describe('createMigrationCollection', () => {
+describe('migrationsCreateCollection', () => {
   it('should be defined', () => {
-    expect(createMigrationCollection).toBeDefined();
-    expect(createMigrationCollection).toBeInstanceOf(Function);
+    expect(migrationsCreateCollection).toBeDefined();
+    expect(migrationsCreateCollection).toBeInstanceOf(Function);
   });
 });
 
-describe('runMigrationSequence', () => {
+describe('migrationsCreateDatabase', () => {
   it('should be defined', () => {
-    expect(runMigrationSequence).toBeDefined();
-    expect(runMigrationSequence).toBeInstanceOf(Function);
+    expect(migrationsCreateDatabase).toBeDefined();
+    expect(migrationsCreateDatabase).toBeInstanceOf(Function);
+  });
+});
+
+describe('migrationsRunSequence', () => {
+  it('should be defined', () => {
+    expect(migrationsRunSequence).toBeDefined();
+    expect(migrationsRunSequence).toBeInstanceOf(Function);
   });
 });
 

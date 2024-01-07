@@ -1,10 +1,13 @@
 import { Client } from 'node-appwrite';
 import invariant from 'tiny-invariant';
 
-import { MIGRATIONS_COLLECTION_ID, MIGRATIONS_COLLECTION_NAME } from './constants';
+import {
+  MIGRATIONS_COLLECTION_ID,
+  MIGRATIONS_COLLECTION_NAME,
+  MIGRATIONS_DATABASE_ID,
+} from './constants';
 import { DatabaseService } from './domain';
 import type { Logger } from './types';
-import { migrationCollectionExists } from './utils';
 
 function configuration() {
   const apiKey = process.env['APPWRITE_API_KEY'];
@@ -16,7 +19,7 @@ function configuration() {
   const collectionName = process.env['MIGRATIONS_COLLECTION_NAME'] ?? MIGRATIONS_COLLECTION_NAME;
   invariant(collectionName, 'MIGRATIONS_COLLECTION_NAME');
 
-  const databaseId = process.env['MIGRATIONS_DATABASE_ID'];
+  const databaseId = process.env['MIGRATIONS_DATABASE_ID'] ?? MIGRATIONS_DATABASE_ID;
   invariant(databaseId, 'MIGRATIONS_DATABASE_ID');
 
   const endpoint = process.env['APPWRITE_ENDPOINT'];
@@ -35,7 +38,7 @@ function configuration() {
   };
 }
 
-export async function createMigrationCollection({ log, error }: { log: Logger; error: Logger }) {
+export async function migrationsCreateCollection({ log, error }: { log: Logger; error: Logger }) {
   log('Create migration collection started.');
 
   const { endpoint, apiKey, databaseId, collectionId, collectionName, projectId } = configuration();
@@ -43,14 +46,8 @@ export async function createMigrationCollection({ log, error }: { log: Logger; e
   log(`Initiating client. Endpoint: ${endpoint}, ProjectID: ${projectId}`);
 
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
-
   const databaseService = DatabaseService.create({ client, databaseId });
-
-  const collectionExists = await migrationCollectionExists(
-    databaseService,
-    databaseId,
-    collectionId,
-  );
+  const collectionExists = await databaseService.collectionExists(collectionId);
 
   if (collectionExists) {
     log('Create migration collection exited. Collection already exists.');

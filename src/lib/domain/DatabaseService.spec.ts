@@ -16,9 +16,9 @@ describe('DatabaseService', () => {
   });
 
   describe('create', () => {
-    it('should create an instance of DatabaseService with a valid databaseId', () => {
+    it('should create an instance of DatabaseService with a valid `id` representing the database ID', () => {
       expect(databaseService).toBeInstanceOf(DatabaseService);
-      expect(databaseService.databaseId).toEqual(databaseId);
+      expect(databaseService.id).toEqual(databaseId);
     });
 
     it('should initialize Databases class with the provided client', () => {
