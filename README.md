@@ -98,7 +98,7 @@ MIGRATIONS_COLLECTION_ID=<collection-id>
 # Defaults to 'Migrations'
 MIGRATIONS_COLLECTION_NAME=<collection-name>
 # Defaults to './migrations'
-MIGRATIONS_HOME=<relative-path-to-folder-where-runner-finds-your-migrations>
+MIGRATIONS_HOME_FOLDER=<relative-path-to-folder-where-runner-finds-your-migrations>
 ```
 
 #### Finalize ADMT Setup

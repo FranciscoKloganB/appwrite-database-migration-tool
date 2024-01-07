@@ -19,7 +19,7 @@ describe('MigrationLocalRepository', () => {
     jest.resetModules();
 
     process.env = env;
-    process.env['MIGRATIONS_HOME'] = migrationFolder;
+    process.env['MIGRATIONS_HOME_FOLDER'] = migrationFolder;
   });
 
   afterEach(() => {

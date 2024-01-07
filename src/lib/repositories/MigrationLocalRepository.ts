@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import invariant from 'tiny-invariant';
 
-import { MIGRATIONS_HOME } from '@lib/constants';
+import { MIGRATIONS_HOME_FOLDER } from '@lib/constants';
 import type { Logger } from '@lib/types';
 import { isClass } from '@lib/utils/type-guards';
 
@@ -29,9 +29,9 @@ export class MigrationLocalRepository implements IMigrationRepository {
   private constructor(props: MigrationLocalRepositoryProps) {
     this.#error = props.error;
     this.#log = props.log;
-    this.#store = process.env['MIGRATIONS_HOME'] ?? MIGRATIONS_HOME;
+    this.#store = process.env['MIGRATIONS_HOME_FOLDER'] ?? MIGRATIONS_HOME_FOLDER;
 
-    invariant(this.#store, 'MIGRATIONS_HOME');
+    invariant(this.#store, 'MIGRATIONS_HOME_FOLDER');
   }
 
   static create(props: MigrationLocalRepositoryProps) {
