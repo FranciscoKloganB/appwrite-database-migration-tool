@@ -138,7 +138,7 @@ export class MigrationService {
    * Pending migrationss are the ones in our local system but not stored as a document on Appwrite collection
    */
   async executePendingMigrations(databaseService: DatabaseService) {
-    this.#log(`Applying pending migrations...`);
+    this.#log(`Will apply ${this.pendingMigrations.length} pending migrations.`);
 
     for await (const migration of this.pendingMigrations) {
       try {
