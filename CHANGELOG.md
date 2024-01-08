@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.5.1](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.5.0...v0.5.1) (2024-01-08)
+
+
+### Bug Fixes
+
+* **Repositories:** eliminate circular dependency ([d173a6d](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/d173a6d575c849d58f8d0c510351caab5ca99834))
+
 ## [0.5.0](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.4.5...v0.5.0) (2024-01-08)
 
 ### [0.4.5](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.4.4...v0.4.5) (2024-01-07)
