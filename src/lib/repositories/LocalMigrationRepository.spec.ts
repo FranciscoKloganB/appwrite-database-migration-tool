@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { createMock } from '@golevelup/ts-jest';
 
-import { LocalMigrationEntity } from '.';
+import { LocalMigrationEntity } from './entities';
 import { LocalMigrationRepository } from './LocalMigrationRepository';
 
 describe('LocalMigrationRepository', () => {

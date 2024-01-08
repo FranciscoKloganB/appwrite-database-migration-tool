@@ -4,7 +4,7 @@ import { DatabaseService } from '@lib/domain';
 import type { Logger } from '@lib/types';
 import { isRecord } from '@lib/utils';
 
-import { RemoteMigrationEntity } from '.';
+import { RemoteMigrationEntity } from './entities';
 import type { IMigrationEntity, IMigrationRepository } from './interfaces';
 
 type MigrationRemoteRepositoryProps = {

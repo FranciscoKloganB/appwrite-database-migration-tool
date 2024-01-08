@@ -6,7 +6,7 @@ import { MIGRATIONS_HOME_FOLDER } from '@lib/constants';
 import type { Logger } from '@lib/types';
 import { isClass } from '@lib/utils/type-guards';
 
-import { LocalMigrationEntity } from '.';
+import { LocalMigrationEntity } from './entities';
 import type { MigrationFileEntity } from './entities/MigrationFileEntity';
 import type { IMigrationEntity, IMigrationRepository } from './interfaces';
 

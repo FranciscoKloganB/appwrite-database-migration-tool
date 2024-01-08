@@ -3,7 +3,7 @@ import { createMock } from '@golevelup/ts-jest';
 import { DatabaseService } from '@lib/domain';
 import { createId } from '@lib/utils';
 
-import { RemoteMigrationEntity } from '.';
+import { RemoteMigrationEntity } from './entities';
 import { RemoteMigrationRepository } from './RemoteMigrationRepository';
 
 describe('RemoteMigrationRepository', () => {
