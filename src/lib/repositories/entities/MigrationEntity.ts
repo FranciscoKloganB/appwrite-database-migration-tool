@@ -1,12 +1,11 @@
 import type { IMigrationEntity, IMigrationFileEntity } from '@lib/repositories/interfaces';
-import { createId } from '@lib/utils';
 
 /** Represents a migration collection document. */
 export class MigrationEntity implements IMigrationEntity {
   /** The wether the migration has been applied (executed vs. pending, stored as a document vs. local file only) */
   #applied: boolean | null;
   /** An appwrite document ID */
-  #id: string;
+  #id: string | null;
   /** An instance of the migration file that matches this entity */
   #instance: IMigrationFileEntity | null;
   /** The name of the migration (class name) which is also the name in the appwrite document */
@@ -16,7 +15,7 @@ export class MigrationEntity implements IMigrationEntity {
 
   public constructor(
     applied: boolean | null,
-    id: string,
+    id: string | null,
     instance: IMigrationFileEntity | null,
     name: string,
     timestamp: number,
@@ -49,7 +48,7 @@ export class MigrationEntity implements IMigrationEntity {
     name: string;
     timestamp: number;
   }) {
-    return new MigrationEntity(null, createId(), props.instance, props.name, props.timestamp);
+    return new MigrationEntity(null, null, props.instance, props.name, props.timestamp);
   }
 
   static createFromRemoteDocument(props: {

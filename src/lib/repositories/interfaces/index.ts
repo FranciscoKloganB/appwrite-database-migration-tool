@@ -6,6 +6,7 @@ export interface IMigrationEntity {
   instance: IMigrationFileEntity | null;
   name: string;
   timestamp: number;
+  value: { applied: boolean; name: string; timestamp: number };
 }
 
 export interface IMigrationFileEntity {

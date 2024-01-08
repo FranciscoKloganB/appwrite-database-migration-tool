@@ -4,7 +4,7 @@ import type { Logger, TransactionMode } from '@lib/types';
 import { createId } from '@lib/utils';
 
 import { DatabaseService } from '.';
-import { Migration, type MigrationProps } from './entities';
+import { Migration } from './entities';
 
 type MigrationServiceProps = {
   migrationLocalRepository: IMigrationRepository;
@@ -93,16 +93,29 @@ export class MigrationService {
    * It assumes `withRemoteEntities` and `withLocalEntities` builders were already invoked.
    */
   public withMigrations() {
-    this.#migrations = this.#localEntities.map((local, idx) => {
-      const fill = { id: createId(), applied: false };
-      const remote = this.#remoteEntities.at(idx);
-
-      if (remote && typeof remote.$id === 'string' && typeof remote.applied === 'boolean') {
-        fill.id = remote.$id;
-        fill.applied = remote.applied;
+    this.#migrations = this.#localEntities.map((localEntity) => {
+      if (!localEntity.instance) {
+        throw new Error(
+          'While running `withMigrations` build step, found local entity without file instance.',
+        );
       }
 
-      return Migration.create({ ...local, ...fill } as MigrationProps);
+      const props = {
+        applied: !!localEntity.applied,
+        id: createId(),
+        instance: localEntity.instance,
+        name: localEntity.name,
+        timestamp: localEntity.timestamp,
+      } satisfies Parameters<typeof Migration.create>[0];
+
+      const remote = this.#remoteEntities.find((rmt) => rmt.name === localEntity.name);
+
+      if (remote && typeof remote.$id === 'string' && typeof remote.applied === 'boolean') {
+        props.id = remote.$id;
+        props.applied = remote.applied;
+      }
+
+      return Migration.create(props);
     });
 
     return this;
