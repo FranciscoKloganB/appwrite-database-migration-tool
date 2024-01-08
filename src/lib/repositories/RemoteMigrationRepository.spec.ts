@@ -64,11 +64,16 @@ describe('RemoteMigrationRepository', () => {
 
   describe('insertMigration', () => {
     it('should insert a migration document', async () => {
+      const id = createId();
+      const applied = true;
+      const name = 'SomeMigrationName';
+      const timestamp = Date.now();
+
       const entity = RemoteMigrationEntity.create({
-        id: createId(),
-        applied: true,
-        name: 'SomeMigrationName',
-        timestamp: Date.now(),
+        id,
+        applied,
+        name,
+        timestamp,
       });
 
       databaseService.createDocument.mockResolvedValueOnce(entity as any);
@@ -80,7 +85,7 @@ describe('RemoteMigrationRepository', () => {
         databaseId,
         collectionId,
         entity.$id,
-        entity.value,
+        { applied, name, timestamp },
       );
 
       expect(result).toBeInstanceOf(RemoteMigrationEntity);

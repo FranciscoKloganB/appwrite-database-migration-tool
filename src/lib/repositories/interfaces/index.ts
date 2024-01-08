@@ -25,9 +25,14 @@ export interface IMigrationFileEntity {
 }
 
 export interface IMigrationRepository {
-  deleteMigration(m: Pick<Required<IMigrationEntity>, '$id'>): Promise<boolean>;
+  deleteMigration(m: { $id: string }): Promise<boolean>;
 
-  insertMigration(m: Omit<Required<IMigrationEntity>, 'instance'>): Promise<IMigrationEntity>;
+  insertMigration(m: {
+    $id: string;
+    applied: boolean;
+    timestamp: number;
+    name: string;
+  }): Promise<IMigrationEntity>;
 
   listMigrations(): Promise<IMigrationEntity[]>;
 }

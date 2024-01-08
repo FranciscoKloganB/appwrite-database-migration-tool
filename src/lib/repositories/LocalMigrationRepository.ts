@@ -8,7 +8,7 @@ import { isClass } from '@lib/utils/type-guards';
 
 import { LocalMigrationEntity } from './entities';
 import type { MigrationFileEntity } from './entities/MigrationFileEntity';
-import type { IMigrationEntity, IMigrationRepository } from './interfaces';
+import type { IMigrationRepository } from './interfaces';
 
 type MigrationLocalRepositoryProps = {
   error: Logger;
@@ -42,13 +42,16 @@ export class LocalMigrationRepository implements IMigrationRepository {
   /*                               public methods                               */
   /* -------------------------------------------------------------------------- */
 
-  async deleteMigration(_migration: Pick<Required<IMigrationEntity>, '$id'>): Promise<boolean> {
+  async deleteMigration(_migration: { $id: string }): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
-  async insertMigration(
-    _migration: Omit<Required<IMigrationEntity>, 'instance'>,
-  ): Promise<LocalMigrationEntity> {
+  async insertMigration(_migration: {
+    $id: string;
+    applied: boolean;
+    timestamp: number;
+    name: string;
+  }): Promise<LocalMigrationEntity> {
     throw new Error('Method not implemented.');
   }
 

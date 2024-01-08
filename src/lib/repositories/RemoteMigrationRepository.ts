@@ -5,7 +5,7 @@ import type { Logger } from '@lib/types';
 import { isRecord } from '@lib/utils';
 
 import { RemoteMigrationEntity } from './entities';
-import type { IMigrationEntity, IMigrationRepository } from './interfaces';
+import type { IMigrationRepository } from './interfaces';
 
 type MigrationRemoteRepositoryProps = {
   databaseId: string;
@@ -54,9 +54,7 @@ export class RemoteMigrationRepository implements IMigrationRepository {
   /*                               public methods                               */
   /* -------------------------------------------------------------------------- */
 
-  public async deleteMigration(
-    migration: Pick<Required<IMigrationEntity>, '$id'>,
-  ): Promise<boolean> {
+  public async deleteMigration(migration: { $id: string }): Promise<boolean> {
     if (!migration.$id) {
       throw new TypeError(
         'Can not delete migration. Expected entity to have property `id` of type string',
@@ -68,14 +66,21 @@ export class RemoteMigrationRepository implements IMigrationRepository {
     return true;
   }
 
-  public async insertMigration(
-    migration: Omit<Required<IMigrationEntity>, 'instance'>,
-  ): Promise<RemoteMigrationEntity> {
+  public async insertMigration(migration: {
+    $id: string;
+    applied: boolean;
+    timestamp: number;
+    name: string;
+  }): Promise<RemoteMigrationEntity> {
     const document = await this.#databaseService.createDocument(
       this.#databaseId,
       this.#collectionId,
       migration.$id,
-      migration.value,
+      {
+        applied: migration.applied,
+        name: migration.name,
+        timestamp: migration.timestamp,
+      },
     );
 
     if (this.isMigrationEntity(document)) {

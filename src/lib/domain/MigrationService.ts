@@ -143,20 +143,38 @@ export class MigrationService {
    * Pending migrationss are the ones in our local system but not stored as a document on Appwrite collection
    */
   async executePendingMigrations(databaseService: DatabaseService) {
-    this.#log(`Will apply ${this.pendingMigrations.length} pending migrations.`);
-    this.#log(`Pending queue: ${JSON.stringify(this.pendingMigrations.map((x) => x.name))}`);
+    this.#log(`There are ${this.pendingMigrations.length} pending migrations.`);
 
     for await (const migration of this.pendingMigrations) {
       try {
+        this.#log(`Pending migration ${migration.name} is being applied.`);
         await migration.up(databaseService);
-      } catch (e) {
-        this.#error(`Failed to apply pending migration: ${migration.name}. Aborting...`);
+        this.#log(`Pending migration ${migration.name} was applied.`);
+      } catch (error) {
+        this.#error(`Error applying pending migration ${migration.name}. Aborting...`);
 
-        throw e;
+        throw error;
+      }
+
+      try {
+        this.#log(`Migration ${migration.name} new state will be saved to Appwrite.`);
+
+        await this.#remoteMigrationRepository.insertMigration({
+          $id: migration.$id,
+          applied: migration.applied,
+          timestamp: migration.timestamp,
+          name: migration.name,
+        });
+
+        this.#log(`Migration ${migration.name} new state was saved. Completed.`);
+      } catch (insertError) {
+        this.#error(`Migration ${migration.name} was applied but new state was not saved.`);
+
+        throw insertError;
       }
     }
 
-    this.#log(`Pending migrations were applied.`);
+    this.#log(`All Pending migrations were applied.`);
   }
 
   /** Reverts last migration that were executed */
