@@ -4,8 +4,8 @@ import { DatabaseService } from '@lib/domain';
 import type { Logger } from '@lib/types';
 import { isRecord } from '@lib/utils';
 
-import { MigrationEntity } from './entities';
-import type { IMigrationRepository } from './interfaces';
+import { RemoteMigrationEntity } from '.';
+import type { IMigrationEntity, IMigrationRepository } from './interfaces';
 
 type MigrationRemoteRepositoryProps = {
   databaseId: string;
@@ -22,7 +22,7 @@ type MigrationDocument = Models.Document & { [x: string]: unknown } & {
   timestamp: number;
 };
 
-export class MigrationRemoteRepository implements IMigrationRepository {
+export class RemoteMigrationRepository implements IMigrationRepository {
   /** The ID of the collection where executed migrations can be found */
   readonly #collectionId: string;
   /** The ID database against which migrations files will be ran */
@@ -47,14 +47,16 @@ export class MigrationRemoteRepository implements IMigrationRepository {
   }
 
   static create(props: MigrationRemoteRepositoryProps) {
-    return new MigrationRemoteRepository(props);
+    return new RemoteMigrationRepository(props);
   }
 
   /* -------------------------------------------------------------------------- */
   /*                               public methods                               */
   /* -------------------------------------------------------------------------- */
 
-  public async deleteMigration(migration: MigrationEntity) {
+  public async deleteMigration(
+    migration: Pick<Required<IMigrationEntity>, '$id'>,
+  ): Promise<boolean> {
     if (!migration.$id) {
       throw new TypeError(
         'Can not delete migration. Expected entity to have property `id` of type string',
@@ -66,7 +68,9 @@ export class MigrationRemoteRepository implements IMigrationRepository {
     return true;
   }
 
-  public async insertMigration(migration: MigrationEntity) {
+  public async insertMigration(
+    migration: Omit<Required<IMigrationEntity>, 'instance'>,
+  ): Promise<RemoteMigrationEntity> {
     const document = await this.#databaseService.createDocument(
       this.#databaseId,
       this.#collectionId,
@@ -75,7 +79,7 @@ export class MigrationRemoteRepository implements IMigrationRepository {
     );
 
     if (this.isMigrationEntity(document)) {
-      return MigrationEntity.createFromRemoteDocument({ ...document, id: document.$id });
+      return RemoteMigrationEntity.create({ ...document, id: document.$id });
     }
 
     throw new Error(
@@ -91,7 +95,7 @@ export class MigrationRemoteRepository implements IMigrationRepository {
 
     const entities = response.documents.map((document) => {
       if (this.isMigrationEntity(document)) {
-        return MigrationEntity.createFromRemoteDocument({
+        return RemoteMigrationEntity.create({
           id: document.$id,
           applied: document.applied,
           name: document.name,

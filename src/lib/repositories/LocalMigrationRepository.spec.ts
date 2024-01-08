@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import { createMock } from '@golevelup/ts-jest';
 
-import { MigrationEntity } from './entities/MigrationEntity';
-import { MigrationLocalRepository } from './MigrationLocalRepository';
+import { LocalMigrationEntity } from '.';
+import { LocalMigrationRepository } from './LocalMigrationRepository';
 
-describe('MigrationLocalRepository', () => {
+describe('LocalMigrationRepository', () => {
   const env = { ...process.env };
 
   const errorLogger = jest.fn();
@@ -12,7 +12,7 @@ describe('MigrationLocalRepository', () => {
 
   const migrationFolder = '/test-utils/mocks';
 
-  const entity = createMock<MigrationEntity>();
+  const entity = createMock<LocalMigrationEntity>();
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -28,12 +28,12 @@ describe('MigrationLocalRepository', () => {
 
   describe('deleteMigration', () => {
     it('should throw an error indicating that the method is not implemented', async () => {
-      const repository = MigrationLocalRepository.create({
+      const repository = LocalMigrationRepository.create({
         error: errorLogger,
         log: infoLogger,
       });
 
-      expect(async () => await repository.deleteMigration(entity)).rejects.toThrow(
+      expect(async () => await repository.deleteMigration(entity as any)).rejects.toThrow(
         'Method not implemented.',
       );
     });
@@ -41,12 +41,12 @@ describe('MigrationLocalRepository', () => {
 
   describe('insertMigration', () => {
     it('should throw an error indicating that the method is not implemented', async () => {
-      const repository = MigrationLocalRepository.create({
+      const repository = LocalMigrationRepository.create({
         error: errorLogger,
         log: infoLogger,
       });
 
-      expect(async () => await repository.insertMigration(entity)).rejects.toThrow(
+      expect(async () => await repository.insertMigration(entity as any)).rejects.toThrow(
         'Method not implemented.',
       );
     });
@@ -54,7 +54,7 @@ describe('MigrationLocalRepository', () => {
 
   describe('listMigrations', () => {
     it('should return an array of MigrationEntity instances when at least one MigrationFile exists', async () => {
-      const repository = MigrationLocalRepository.create({
+      const repository = LocalMigrationRepository.create({
         error: errorLogger,
         log: infoLogger,
       });
@@ -63,13 +63,13 @@ describe('MigrationLocalRepository', () => {
 
       expect(result).toBeInstanceOf(Array);
       expect(result).toHaveLength(1);
-      expect(result[0]).toBeInstanceOf(MigrationEntity);
+      expect(result[0]).toBeInstanceOf(LocalMigrationEntity);
     });
 
     it('should return an empty array when no MigrationFiles are found', async () => {
       jest.spyOn(fs.promises, 'readdir').mockResolvedValue([]);
 
-      const repository = MigrationLocalRepository.create({
+      const repository = LocalMigrationRepository.create({
         error: errorLogger,
         log: infoLogger,
       });

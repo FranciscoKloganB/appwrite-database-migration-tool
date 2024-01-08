@@ -1,14 +1,19 @@
-import type { MigrationEntity } from '@lib/repositories/entities';
-import type { IMigrationEntity, IMigrationRepository } from '@lib/repositories/interfaces';
+import type { IMigrationEntity } from '@lib/repositories/interfaces';
 import type { Logger, TransactionMode } from '@lib/types';
 import { createId } from '@lib/utils';
 
 import { DatabaseService } from '.';
+import {
+  LocalMigrationEntity,
+  LocalMigrationRepository,
+  RemoteMigrationEntity,
+  RemoteMigrationRepository,
+} from '../../index-lib';
 import { Migration } from './entities';
 
 type MigrationServiceProps = {
-  migrationLocalRepository: IMigrationRepository;
-  migrationRemoteRepository: IMigrationRepository;
+  localMigrationRepository: LocalMigrationRepository;
+  remoteMigrationRepository: RemoteMigrationRepository;
   error: Logger;
   log: Logger;
 };
@@ -18,17 +23,17 @@ export class MigrationService {
   static readonly TRANSACTION_MODE: TransactionMode = 'each';
 
   /** Service that can be used to interact with Filesystem migration collection  */
-  readonly #migrationLocalRepository: IMigrationRepository;
+  readonly #localMigrationRepository: LocalMigrationRepository;
   /** Service that can be used to interact with Appwrite migration collection  */
-  readonly #migrationRemoteRepository: IMigrationRepository;
+  readonly #remoteMigrationRepository: RemoteMigrationRepository;
 
   /** A function that can be used to log error messages */
   readonly #error: Logger;
   /** A function that can be used to log information messages */
   readonly #log: Logger;
 
-  #localEntities: IMigrationEntity[] = [];
-  #remoteEntities: IMigrationEntity[] = [];
+  #localEntities: LocalMigrationEntity[] = [];
+  #remoteEntities: RemoteMigrationEntity[] = [];
 
   #migrations: Migration[] = [];
 
@@ -37,8 +42,8 @@ export class MigrationService {
   /* -------------------------------------------------------------------------- */
 
   private constructor(props: MigrationServiceProps) {
-    this.#migrationLocalRepository = props.migrationLocalRepository;
-    this.#migrationRemoteRepository = props.migrationRemoteRepository;
+    this.#localMigrationRepository = props.localMigrationRepository;
+    this.#remoteMigrationRepository = props.remoteMigrationRepository;
     this.#error = props.error;
     this.#log = props.log;
   }
@@ -57,7 +62,7 @@ export class MigrationService {
   public async withRemoteEntities() {
     this.#log('Will retrieve migration data from Appwrite.');
 
-    const entities = await this.#migrationRemoteRepository.listMigrations();
+    const entities = await this.#remoteMigrationRepository.listMigrations();
 
     this.#log(`Migration data retrieved from Appwrite. Found ${entities.length} entries.`);
 
@@ -75,7 +80,7 @@ export class MigrationService {
   public async withLocalEntities() {
     this.#log('Will retrieve migration data from Filesystem.');
 
-    const entities = await this.#migrationLocalRepository.listMigrations();
+    const entities = await this.#localMigrationRepository.listMigrations();
 
     this.#log(`Migration data retrieved from Filesystem. Found ${entities.length} entries.`);
 
@@ -93,29 +98,16 @@ export class MigrationService {
    * It assumes `withRemoteEntities` and `withLocalEntities` builders were already invoked.
    */
   public withMigrations() {
-    this.#migrations = this.#localEntities.map((localEntity) => {
-      if (!localEntity.instance) {
-        throw new Error(
-          'While running `withMigrations` build step, found local entity without file instance.',
-        );
-      }
+    this.#migrations = this.#localEntities.map((local) => {
+      const remote = this.#remoteEntities.find((rmt) => rmt.name === local.name);
 
-      const props = {
-        applied: !!localEntity.applied,
-        id: createId(),
-        instance: localEntity.instance,
-        name: localEntity.name,
-        timestamp: localEntity.timestamp,
-      } satisfies Parameters<typeof Migration.create>[0];
-
-      const remote = this.#remoteEntities.find((rmt) => rmt.name === localEntity.name);
-
-      if (remote && typeof remote.$id === 'string' && typeof remote.applied === 'boolean') {
-        props.id = remote.$id;
-        props.applied = remote.applied;
-      }
-
-      return Migration.create(props);
+      return Migration.create({
+        applied: remote?.applied || local.applied,
+        id: remote?.$id || createId(),
+        instance: local.instance,
+        name: local.name,
+        timestamp: local.timestamp,
+      });
     });
 
     return this;
@@ -202,12 +194,12 @@ export class MigrationService {
   }
 
   /** TODO Runs applicational routines after migration completes successfully */
-  protected async afterOneCompleted(_: MigrationEntity): Promise<void> {
+  protected async afterOneCompleted(_: IMigrationEntity): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
   /** TODO Runs applicational routines and cleanup after migration fails to complete */
-  protected async afterOneFailed(_: MigrationEntity): Promise<void> {
+  protected async afterOneFailed(_: IMigrationEntity): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

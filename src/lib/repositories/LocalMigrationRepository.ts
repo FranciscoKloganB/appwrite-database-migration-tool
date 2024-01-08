@@ -6,16 +6,16 @@ import { MIGRATIONS_HOME_FOLDER } from '@lib/constants';
 import type { Logger } from '@lib/types';
 import { isClass } from '@lib/utils/type-guards';
 
-import { MigrationEntity } from './entities';
+import { LocalMigrationEntity } from '.';
 import type { MigrationFileEntity } from './entities/MigrationFileEntity';
-import type { IMigrationRepository } from './interfaces';
+import type { IMigrationEntity, IMigrationRepository } from './interfaces';
 
 type MigrationLocalRepositoryProps = {
   error: Logger;
   log: Logger;
 };
 
-export class MigrationLocalRepository implements IMigrationRepository {
+export class LocalMigrationRepository implements IMigrationRepository {
   /** A function that can be used to log error messages */
   readonly #error: Logger;
   /** A function that can be used to log information messages */
@@ -35,18 +35,20 @@ export class MigrationLocalRepository implements IMigrationRepository {
   }
 
   static create(props: MigrationLocalRepositoryProps) {
-    return new MigrationLocalRepository(props);
+    return new LocalMigrationRepository(props);
   }
 
   /* -------------------------------------------------------------------------- */
   /*                               public methods                               */
   /* -------------------------------------------------------------------------- */
 
-  async deleteMigration(_: MigrationEntity): Promise<boolean> {
+  async deleteMigration(_migration: Pick<Required<IMigrationEntity>, '$id'>): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
 
-  async insertMigration(_: MigrationEntity): Promise<MigrationEntity> {
+  async insertMigration(
+    _migration: Omit<Required<IMigrationEntity>, 'instance'>,
+  ): Promise<LocalMigrationEntity> {
     throw new Error('Method not implemented.');
   }
 
@@ -65,7 +67,7 @@ export class MigrationLocalRepository implements IMigrationRepository {
 
         this.#log(`module name, up, down: ${name}, ${typeof instance.up}, ${typeof instance.down}`);
 
-        return MigrationEntity.createFromLocalDocument({
+        return LocalMigrationEntity.create({
           instance,
           name,
           timestamp,

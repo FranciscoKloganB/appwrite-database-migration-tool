@@ -3,19 +3,17 @@ import { createMock } from '@golevelup/ts-jest';
 import { DatabaseService } from '@lib/domain';
 import { createId } from '@lib/utils';
 
-import { MigrationEntity } from './entities';
-import type { IMigrationFileEntity } from './interfaces';
-import { MigrationRemoteRepository } from './MigrationRemoteRepository';
+import { RemoteMigrationEntity } from '.';
+import { RemoteMigrationRepository } from './RemoteMigrationRepository';
 
-describe('MigrationRemoteRepository', () => {
+describe('RemoteMigrationRepository', () => {
   const collectionId = 'collection-id';
   const databaseId = 'database-id';
   const error = jest.fn();
   const log = jest.fn();
 
-  const migrationFile = createMock<IMigrationFileEntity>();
   const databaseService = createMock<DatabaseService>();
-  const testSubject = MigrationRemoteRepository.create({
+  const testSubject = RemoteMigrationRepository.create({
     databaseId,
     collectionId,
     databaseService,
@@ -29,10 +27,9 @@ describe('MigrationRemoteRepository', () => {
 
   describe('deleteMigration', () => {
     it('should delete a migration document', async () => {
-      const entity = MigrationEntity.create({
+      const entity = RemoteMigrationEntity.create({
         id: createId(),
         applied: true,
-        instance: migrationFile,
         name: 'SomeMigrationName',
         timestamp: Date.now(),
       });
@@ -52,10 +49,9 @@ describe('MigrationRemoteRepository', () => {
     });
 
     it('should throw an error if migration entity does not have an $id property', async () => {
-      const entity = MigrationEntity.create({
+      const entity = RemoteMigrationEntity.create({
         id: '',
         applied: true,
-        instance: migrationFile,
         name: 'SomeMigrationName',
         timestamp: Date.now(),
       });
@@ -68,10 +64,9 @@ describe('MigrationRemoteRepository', () => {
 
   describe('insertMigration', () => {
     it('should insert a migration document', async () => {
-      const entity = MigrationEntity.create({
+      const entity = RemoteMigrationEntity.create({
         id: createId(),
         applied: true,
-        instance: migrationFile,
         name: 'SomeMigrationName',
         timestamp: Date.now(),
       });
@@ -88,15 +83,14 @@ describe('MigrationRemoteRepository', () => {
         entity.value,
       );
 
-      expect(result).toBeInstanceOf(MigrationEntity);
+      expect(result).toBeInstanceOf(RemoteMigrationEntity);
       expect(result.$id).toEqual(entity.$id);
     });
 
     it('should throw an error if migration entity is malformed', async () => {
-      const entity = MigrationEntity.create({
+      const entity = RemoteMigrationEntity.create({
         id: createId(),
         applied: true,
-        instance: migrationFile,
         name: 'SomeMigrationName',
         timestamp: Date.now(),
       });
@@ -136,9 +130,9 @@ describe('MigrationRemoteRepository', () => {
       expect(databaseService.listDocuments).toHaveBeenCalledWith(databaseId, collectionId);
 
       expect(result).toHaveLength(2);
-      expect(result[0]).toBeInstanceOf(MigrationEntity);
+      expect(result[0]).toBeInstanceOf(RemoteMigrationEntity);
       expect(result[0].$id).toBe(response.documents[0].$id);
-      expect(result[1]).toBeInstanceOf(MigrationEntity);
+      expect(result[1]).toBeInstanceOf(RemoteMigrationEntity);
       expect(result[1].$id).toBe(response.documents[1].$id);
     });
 

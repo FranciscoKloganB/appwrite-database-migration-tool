@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant';
 
 import { MIGRATIONS_COLLECTION_ID, MIGRATIONS_COLLECTION_NAME } from './constants';
 import { DatabaseService, MigrationService } from './domain';
-import { MigrationLocalRepository, MigrationRemoteRepository } from './repositories';
+import { LocalMigrationRepository, RemoteMigrationRepository } from './repositories';
 import type { Logger } from './types';
 
 function configuration() {
@@ -53,12 +53,12 @@ export async function migrationsRunSequence({ log, error }: { log: Logger; error
     return;
   }
 
-  const migrationLocalRepository = MigrationLocalRepository.create({
+  const localMigrationRepository = LocalMigrationRepository.create({
     error,
     log,
   });
 
-  const migrationRemoteRepository = MigrationRemoteRepository.create({
+  const remoteMigrationRepository = RemoteMigrationRepository.create({
     collectionId,
     databaseId,
     databaseService,
@@ -69,8 +69,8 @@ export async function migrationsRunSequence({ log, error }: { log: Logger; error
   const migrationService = MigrationService.create({
     error,
     log,
-    migrationLocalRepository,
-    migrationRemoteRepository,
+    localMigrationRepository,
+    remoteMigrationRepository,
   });
 
   await Promise.all([migrationService.withLocalEntities(), migrationService.withRemoteEntities()]);
