@@ -20,16 +20,16 @@ class ${className} extends MigrationFileEntity {
   }
 
   /**
-   * @param {import('@franciscokloganb/appwrite-database-migration-tool').DatabaseService} dbService
+   * @param {import('@franciscokloganb/appwrite-database-migration-tool').IMigrationCommandParams} params
    */
-  async up(dbService) {
+  async up(params) {
     throw new Error('Method not implemented.');
   }
 
   /**
-   * @param {import('@franciscokloganb/appwrite-database-migration-tool').DatabaseService} dbService
+   * @param {import('@franciscokloganb/appwrite-database-migration-tool').IMigrationCommandParams} params
    */
-  async down(dbService) {
+  async down(params) {
     throw new Error('Method not implemented.');
   }
 }

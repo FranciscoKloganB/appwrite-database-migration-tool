@@ -1,5 +1,4 @@
-import { DatabaseService } from '@lib/domain';
-import type { IMigrationFileEntity } from '@lib/repositories';
+import type { IMigrationCommandParams, IMigrationFileEntity } from '@lib/repositories';
 
 export type MigrationProps = {
   applied: boolean;
@@ -76,27 +75,23 @@ export class Migration {
     return !this.#applied;
   }
 
-  async up(databaseService: DatabaseService) {
-    await this.#instance.up(databaseService);
+  async apply(params: IMigrationCommandParams) {
+    await this.#instance.up(params);
 
-    this.apply();
+    this.setApplied(true);
 
-    return true;
+    return this.value;
   }
 
-  async down(databaseService: DatabaseService) {
-    await this.#instance.down(databaseService);
+  async unapply(params: IMigrationCommandParams) {
+    await this.#instance.down(params);
 
-    this.unapply();
+    this.setApplied(false);
 
-    return true;
+    return this.value;
   }
 
-  private apply() {
-    this.#applied = true;
-  }
-
-  private unapply() {
-    this.#applied = false;
+  private setApplied(value: boolean) {
+    this.#applied = value;
   }
 }

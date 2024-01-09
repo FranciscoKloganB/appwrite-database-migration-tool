@@ -1,12 +1,11 @@
-import { DatabaseService } from '@lib/domain';
-import type { IMigrationFileEntity } from '@lib/repositories/interfaces';
+import type { IMigrationCommandParams, IMigrationFileEntity } from '@lib/repositories/interfaces';
 
 export class MigrationFileEntity implements IMigrationFileEntity {
-  up(databaseService: DatabaseService): Promise<void> {
+  up({ db, log, error }: IMigrationCommandParams): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  down(databaseService: DatabaseService): Promise<void> {
+  down({ db, log, error }: IMigrationCommandParams): Promise<void> {
     throw new Error('Method not implemented.');
   }
 }

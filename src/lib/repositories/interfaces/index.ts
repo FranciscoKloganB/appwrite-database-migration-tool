@@ -1,5 +1,7 @@
 import { DatabaseService } from '@lib/domain';
 
+import { Logger } from '../../../index-lib';
+
 export interface IMigrationEntity {
   $id?: string;
   applied?: boolean;
@@ -17,11 +19,17 @@ export interface IMigrationEntity {
   unapply: () => void;
 }
 
+export interface IMigrationCommandParams {
+  db: DatabaseService;
+  log: Logger;
+  error: Logger;
+}
+
 export interface IMigrationFileEntity {
   /** Applies the migrations. */
-  up(databaseService: DatabaseService): Promise<void>;
+  up(params: IMigrationCommandParams): Promise<void>;
   /** Reverse the migrations. */
-  down(databaseService: DatabaseService): Promise<void>;
+  down(params: IMigrationCommandParams): Promise<void>;
 }
 
 export interface IMigrationRepository {

@@ -1,13 +1,15 @@
 // @ts-check
 
+const ignorePattern = '^_|#error$|#info$|#log$|error$|info$|log$|db$|databaseService$';
+
 const noUnusedVarRule = [
   'error',
   {
     args: 'after-used',
-    argsIgnorePattern: '^_|#error$|#log$|#info|databaseService$',
+    argsIgnorePattern: ignorePattern,
     ignoreRestSiblings: true,
     vars: 'all',
-    varsIgnorePattern: '^_|#error$|#log$|#info|databaseService$',
+    varsIgnorePattern: ignorePattern,
   },
 ];
 

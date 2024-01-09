@@ -148,7 +148,11 @@ export class MigrationService {
     for await (const migration of this.pendingMigrations) {
       try {
         this.#log(`Pending migration ${migration.name} is being applied.`);
-        await migration.up(databaseService);
+        await migration.apply({
+          db: databaseService,
+          log: this.#log,
+          error: this.#error,
+        });
         this.#log(`Pending migration ${migration.name} was applied.`);
       } catch (error) {
         this.#error(`Error applying pending migration ${migration.name}. Aborting...`);
@@ -185,7 +189,11 @@ export class MigrationService {
 
     if (migration) {
       try {
-        await migration.down(databaseService);
+        await migration.unapply({
+          db: databaseService,
+          log: this.#log,
+          error: this.#error,
+        });
       } catch (e) {
         this.#error(`Failed to undo last applied migration: ${migration.name}.`);
 
