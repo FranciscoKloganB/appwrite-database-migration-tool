@@ -76,17 +76,21 @@ export class Migration {
   }
 
   async apply(params: IMigrationCommandParams) {
-    await this.#instance.up(params);
+    if (this.isPending()) {
+      await this.#instance.up(params);
 
-    this.setApplied(true);
+      this.setApplied(true);
+    }
 
     return this.value;
   }
 
   async unapply(params: IMigrationCommandParams) {
-    await this.#instance.down(params);
+    if (this.isExecuted()) {
+      await this.#instance.down(params);
 
-    this.setApplied(false);
+      this.setApplied(false);
+    }
 
     return this.value;
   }
