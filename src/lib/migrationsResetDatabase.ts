@@ -27,7 +27,7 @@ function configuration() {
 }
 
 export async function migrationsCreateDatabase({ log, error }: { log: Logger; error: Logger }) {
-  log('Create migration database started.');
+  log('Reset database started.');
 
   const { endpoint, apiKey, databaseId, projectId } = configuration();
 
@@ -37,20 +37,27 @@ export async function migrationsCreateDatabase({ log, error }: { log: Logger; er
   const databaseService = DatabaseService.create({ client, databaseId });
   const databaseExists = await databaseService.databaseExists();
 
-  if (databaseExists) {
-    log('Create migration database exited. Database already exists.');
+  if (!databaseExists) {
+    log('Create migration database exited. Database does not exist.');
 
     return;
   }
 
-  await databaseService
-    .create(databaseId, databaseId)
-    .then(() => log('Create migration database completed successfully.'))
-    .catch((e) => {
-      error(`Could not create database ${databaseId} (id: ${databaseId}).`);
+  const { collections } = await databaseService.getCollections();
 
-      if (e instanceof Error) {
-        error(e.message);
-      }
-    });
+  for await (const collection of collections) {
+    try {
+      log(`Will delete collection ${collection.name} (id: ${collection.$id}).`);
+
+      await databaseService.dropCollection(collection.$id);
+
+      log(`Successfully deleted named ${collection.name} (id: ${collection.$id})..`);
+    } catch (e) {
+      error(`Failed to delete collection named ${collection.name} (id: ${collection.$id}).`);
+
+      throw e;
+    }
+  }
+
+  log('Reset database completed. All collections have been dropped.');
 }
