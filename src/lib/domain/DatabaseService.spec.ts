@@ -130,4 +130,35 @@ describe('DatabaseService', () => {
       await expect(async () => await databaseService.databaseExists()).rejects.toThrow(error);
     });
   });
+
+  describe('dropCollection', () => {
+    const collectionId = 'foo';
+    const deleteCollectionSpy = jest.spyOn(Databases.prototype, 'deleteCollection');
+
+    beforeEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it('should call deleteCollection method with the correct parameters', async () => {
+      await databaseService.dropCollection(collectionId);
+
+      expect(deleteCollectionSpy).toHaveBeenCalledTimes(1);
+      expect(deleteCollectionSpy).toHaveBeenCalledWith(databaseId, collectionId);
+    });
+  });
+
+  describe('getCollections', () => {
+    const listCollectionsSpy = jest.spyOn(Databases.prototype, 'listCollections');
+
+    beforeEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it('should call listCollections method with the correct parameters', async () => {
+      await databaseService.getCollections();
+
+      expect(listCollectionsSpy).toHaveBeenCalledTimes(1);
+      expect(listCollectionsSpy).toHaveBeenCalledWith(databaseId);
+    });
+  });
 });

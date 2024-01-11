@@ -51,4 +51,12 @@ export class DatabaseService extends Databases {
       throw e;
     }
   }
+
+  public async dropCollection(collectionId: string) {
+    return this.deleteCollection(this.id, collectionId);
+  }
+
+  public async getCollections() {
+    return this.listCollections(this.id);
+  }
 }
