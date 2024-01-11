@@ -7,9 +7,69 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 - [x] Follow the setup steps from a consumer perspective on a live project;
 - [x] Run codegen implementation from a consumer project;
 - [x] Run the MigrationsCreateCollection from a consumer project;
-- [ ] Run the MigrationsRunSequence from a consumer project;
+- [x] Run the MigrationsRunSequence from a consumer project;
 - [ ] Run the one down sequence flow against live Appwrite databases from consuming proeject;
 - [ ] Add integration tests with mocked Appwrite responses using MSW;
+
+## Roadmap to v2.0.0
+
+### Deal with Appwrite Eventual Consistency
+
+There are situations where Appwrite acknowledges collection `attribute` creation with `HTTP 201`.
+However, if you try to `createDocument` immediatly after the request fails due to invalid schema
+(`'foo' attribute does not exist on 'bar' collection`). This can be naively fixed with `sleep(4000)`
+before attempting to create document with migrations. However, we suspect that this issue can happen
+with any database/collection operation, not just `createAttribute` and `createDocument` combinations.
+
+#### Deal with Appwrite Eventual Consistency - Possible Solution
+
+Implement a wrapper around the SDK using exponential backoff with up to three retries.
+
+### Improved fault tolerance (pseudo-transactional behaviour)
+
+Currently, the `MigrationRunSequence` may fail while applying a migration file. If the migration
+fails, the steps that were taken during that particular migration file, are not rolled back. Using
+the down method is an "OK" approach, but not ideal.
+
+#### Possible Solution - Improved fault tolerance (pseudo-transactional behaviour)
+
+Implement a superset of commands around `DatabaseService` using a `Memento` pattern or some other
+to try to mimic Transactions as much as possible. This solution also requires `retries` with
+exponential backoff and would require some interesting API changes. This means that `ADMT` would
+no longer extend Appwrite functionality and then expose the `Databases` instance, but instead
+would expose a completly different set of commands that would look something like this:
+
+```ts
+class SomeMigration {
+  async up({ db, error, log, sequence }) {
+    await sequence
+      .addCommand({
+        action: 'create',
+        type: 'document',
+        args: {
+          ...argsToPassToDatabasesCreateDocumentMethod
+        }
+      }).addCommand({
+        action: 'update',
+        type: 'document',
+        args: {
+          ...argsToPassToDatabasesCreateDocumentMethod
+        },
+        onError: async ({ db }) => {
+          await db.executeCustomRollbackActionForThisStep()
+        }
+      })
+
+    // For each command that is successfully executed in the sequence queue
+    // Push a record to an executed stack
+    // If some command N + x, x > 0 fails
+    // Pop from the executed stack and execute reverse of action
+    //   e.g.: delete document when action was create document
+    await sequence.build().execute()
+  }
+}
+```
+
 
 ## Setting Up
 
@@ -104,6 +164,26 @@ import { migrationsCreateDatabase } from '@franciscokloganb/appwrite-database-mi
 
 export default async function(ctx) {
   await migrationsCreateDatabase({
+    log: ctx.log,
+    error: ctx.error,
+  })
+
+  return ctx.res.empty();
+}
+```
+
+##### MigrationResetDatabase
+
+Retrieves all collections which exist in the database associated with the environment variable
+`MIGRATIONS_DATABASE_ID` and then deletes them. The closest SQL analogy for this serverless function
+is `DROP TABLE IF EXISTS`. We strongly recommend not creating Appwrite function this one in
+`production`.
+
+```ts
+import { migrationsResetDatabase } from '@franciscokloganb/appwrite-database-migration-tool'
+
+export default async function(ctx) {
+  await migrationsResetDatabase({
     log: ctx.log,
     error: ctx.error,
   })
