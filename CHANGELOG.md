@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.0](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.6.0...v0.7.0) (2024-01-11)
+
+
+### Features
+
+* **DatabaseService:** add new utility methods ([b381676](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/b3816768eda2bb39084085cffba050e5799c399e))
+* **migrationsResetDatabase:** add new utility migration which drops all collections ([77d6b1c](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/77d6b1caf44a1ff9b59d7472b066cae3b48f64d4))
+
 ## [0.6.0](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.5.2...v0.6.0) (2024-01-09)
 
 
