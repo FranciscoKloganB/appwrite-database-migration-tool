@@ -48,7 +48,7 @@ export class MigrationService {
     this.#log = props.log;
   }
 
-  static create(props: MigrationServiceProps) {
+  public static create(props: MigrationServiceProps) {
     return new MigrationService(props);
   }
 
@@ -93,9 +93,9 @@ export class MigrationService {
   }
 
   /**
-   * Builds migration domain entities by combining remote and local migration document entities together.
+   * Builds migration domain entities by combining remote and local entities.
    *
-   * It assumes `withRemoteEntities` and `withLocalEntities` builders were already invoked.
+   * It is assumed `withRemoteEntities` and `withLocalEntities` builders were already invoked.
    */
   public withMigrations() {
     this.#migrations = this.#localEntities.map((local) => {
@@ -118,22 +118,22 @@ export class MigrationService {
   /* -------------------------------------------------------------------------- */
 
   /** Gets an array containing all executed and pending migrations sorted by timestamp ASC. */
-  get migrations() {
+  public get migrations() {
     return this.#migrations;
   }
 
   /** Gets an array containing all executed migrations, sorted by timestamp ASC. */
-  get executedMigrations() {
+  public get executedMigrations() {
     return this.#migrations.filter((m) => m.isExecuted());
   }
 
   /** Gets an array containing all pending migrations, sorted by timestamp ASC. */
-  get pendingMigrations() {
+  public get pendingMigrations() {
     return this.#migrations.filter((m) => m.isPending());
   }
 
   /** Gets the latest migration regardless of it's applied state */
-  get latestMigration() {
+  public get latestMigration() {
     return this.#migrations.at(-1);
   }
 
@@ -142,7 +142,7 @@ export class MigrationService {
    *
    * Pending migrationss are the ones in our local system but not stored as a document on Appwrite collection
    */
-  async executePendingMigrations(databaseService: DatabaseService) {
+  public async executePendingMigrations(databaseService: DatabaseService) {
     this.#log(`There are ${this.pendingMigrations.length} pending migrations.`);
 
     for await (const migration of this.pendingMigrations) {
@@ -184,7 +184,7 @@ export class MigrationService {
   }
 
   /** Reverts last migration that were executed */
-  async undoLastMigration(databaseService: DatabaseService) {
+  public async undoLastMigration(databaseService: DatabaseService) {
     this.#log(`Undoing last applied migration...`);
 
     const migration = this.executedMigrations.at(-1);

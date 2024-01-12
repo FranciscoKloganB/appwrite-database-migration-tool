@@ -25,27 +25,27 @@ export class RemoteMigrationEntity implements IMigrationEntity {
     return new RemoteMigrationEntity(props.id, props.applied, props.name, props.timestamp);
   }
 
-  get $id() {
+  public get $id() {
     return this.#id;
   }
 
-  get applied() {
+  public get applied() {
     return this.#applied;
   }
 
-  get instance() {
+  public get instance() {
     return this.#instance;
   }
 
-  get name() {
+  public get name() {
     return this.#name;
   }
 
-  get timestamp() {
+  public get timestamp() {
     return this.#timestamp;
   }
 
-  get value() {
+  public get value() {
     return {
       $id: this.$id,
       applied: this.applied,
@@ -55,11 +55,11 @@ export class RemoteMigrationEntity implements IMigrationEntity {
     } as const;
   }
 
-  apply() {
+  public apply() {
     this.#applied = true;
   }
 
-  unapply() {
+  public unapply() {
     this.#applied = false;
   }
 }

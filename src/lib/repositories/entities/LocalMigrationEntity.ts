@@ -25,27 +25,27 @@ export class LocalMigrationEntity implements IMigrationEntity {
     return new LocalMigrationEntity(props.instance, props.name, props.timestamp);
   }
 
-  get $id() {
+  public get $id() {
     return this.#id;
   }
 
-  get applied() {
+  public get applied() {
     return this.#applied;
   }
 
-  get instance() {
+  public get instance() {
     return this.#instance;
   }
 
-  get name() {
+  public get name() {
     return this.#name;
   }
 
-  get timestamp() {
+  public get timestamp() {
     return this.#timestamp;
   }
 
-  get value() {
+  public get value() {
     return {
       $id: this.$id,
       applied: this.applied,

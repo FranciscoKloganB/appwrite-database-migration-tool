@@ -38,27 +38,27 @@ export class Migration {
     return new Migration(props.applied, props.id, props.instance, props.name, props.timestamp);
   }
 
-  get $id() {
+  public get $id() {
     return this.#id;
   }
 
-  get applied() {
+  public get applied() {
     return this.#applied;
   }
 
-  get instance() {
+  public get instance() {
     return this.#instance;
   }
 
-  get name() {
+  public get name() {
     return this.#name;
   }
 
-  get timestamp() {
+  public get timestamp() {
     return this.#timestamp;
   }
 
-  get value() {
+  public get value() {
     return {
       $id: this.$id,
       applied: this.applied,
@@ -67,15 +67,15 @@ export class Migration {
     } as const;
   }
 
-  isExecuted() {
+  public isExecuted() {
     return this.#applied;
   }
 
-  isPending() {
+  public isPending() {
     return !this.#applied;
   }
 
-  async apply(params: IMigrationCommandParams) {
+  public async apply(params: IMigrationCommandParams) {
     if (this.isPending()) {
       await this.#instance.up(params);
 
@@ -85,7 +85,7 @@ export class Migration {
     return this.value;
   }
 
-  async unapply(params: IMigrationCommandParams) {
+  public async unapply(params: IMigrationCommandParams) {
     if (this.isExecuted()) {
       await this.#instance.down(params);
 
