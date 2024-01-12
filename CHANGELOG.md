@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.1](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.7.0...v0.7.1) (2024-01-12)
+
+
+### Bug Fixes
+
+* **migrationsResetDatabase:** add module export and proper function name ([c66ead2](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/c66ead2b9cf950ab7c05e35e99677efb4de886c2))
+
 ## [0.7.0](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.6.0...v0.7.0) (2024-01-11)
 
 
