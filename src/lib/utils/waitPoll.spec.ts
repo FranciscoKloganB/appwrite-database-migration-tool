@@ -94,7 +94,7 @@ describe('waitPoll', () => {
       expect(sleep).toHaveBeenCalledTimes(5);
     });
 
-    it.only('should return a forwarded error when the fetcher fails', async () => {
+    it('should return a forwarded error when the fetcher fails', async () => {
       const fetchError = new Error('First fetch exception');
 
       fetcher.mockRejectedValue(fetchError);
