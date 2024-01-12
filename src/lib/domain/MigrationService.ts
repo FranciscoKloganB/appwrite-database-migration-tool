@@ -10,6 +10,7 @@ import {
   RemoteMigrationRepository,
 } from '../../index-lib';
 import { Migration } from './entities';
+import { LocalMigrationVO, RemoteMigrationVO } from './interfaces';
 
 type MigrationServiceProps = {
   localMigrationRepository: LocalMigrationRepository;
@@ -41,7 +42,7 @@ export class MigrationService {
   /*                                 constructor                                */
   /* -------------------------------------------------------------------------- */
 
-  private constructor(props: MigrationServiceProps) {
+  public constructor(props: MigrationServiceProps) {
     this.#localMigrationRepository = props.localMigrationRepository;
     this.#remoteMigrationRepository = props.remoteMigrationRepository;
     this.#error = props.error;
@@ -116,6 +117,13 @@ export class MigrationService {
   /* -------------------------------------------------------------------------- */
   /*                               public methods                               */
   /* -------------------------------------------------------------------------- */
+  public get remoteMigrations(): Array<RemoteMigrationVO> {
+    return this.#remoteEntities.map((m) => m.value);
+  }
+
+  public get localMigrations(): Array<LocalMigrationVO> {
+    return this.#localEntities.map((m) => m.value);
+  }
 
   /** Gets an array containing all executed and pending migrations sorted by timestamp ASC. */
   public get migrations() {
