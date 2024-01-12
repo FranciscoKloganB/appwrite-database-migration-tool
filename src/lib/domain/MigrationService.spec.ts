@@ -53,6 +53,20 @@ describe('MigrationService', () => {
     });
   });
 
+  describe('remoteMigrations', () => {
+    it('should be an array', () => {
+      const migrationService = createSubject();
+
+      expect(migrationService.remoteMigrations).toBeInstanceOf(Array);
+    });
+
+    it('should be empty', () => {
+      const migrationService = createSubject();
+
+      expect(migrationService.remoteMigrations).toHaveLength(0);
+    });
+  });
+
   describe('withLocalEntities', () => {
     it('should be possible to fill local migrations', async () => {
       const migrationService = createSubject();
@@ -105,20 +119,6 @@ describe('MigrationService', () => {
       const result = await migrationService.withLocalEntities();
 
       expect(result).toBe(migrationService);
-    });
-  });
-
-  describe('remoteMigrations', () => {
-    it('should be an array', () => {
-      const migrationService = createSubject();
-
-      expect(migrationService.remoteMigrations).toBeInstanceOf(Array);
-    });
-
-    it('should be empty', () => {
-      const migrationService = createSubject();
-
-      expect(migrationService.remoteMigrations).toHaveLength(0);
     });
   });
 
