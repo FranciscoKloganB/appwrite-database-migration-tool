@@ -26,7 +26,7 @@ function configuration() {
   };
 }
 
-export async function migrationsCreateDatabase({ log, error }: { log: Logger; error: Logger }) {
+export async function migrationsResetDatabase({ log, error }: { log: Logger; error: Logger }) {
   log('Reset database started.');
 
   const { endpoint, apiKey, databaseId, projectId } = configuration();
