@@ -292,40 +292,55 @@ and can (possibly?) occur out of order.
 
 **What are the implications for you as a developer?**
 
-Again, with an example. Assume you create a collection called `Foo`, with an attribute `bar`.
-Shortly after creating the collection you try to create a document with data `{ "bar": "hello" }`.
-Often, the request will succeed. However, there is a chance you get an error informing you that the
-format of the document is invalid and that `bar` does not exist on collection `Foo`
-when you execute the statement below:
+Again, with an example. Assume you add an attribute `bar` to some existing collection. Shortly
+after. you try to create a document with data `{ "bar": "hello" }`. While the request may succeed,
+there is a chance you get an error informing that the format of the document is invalid and that
+`bar` does not exist on collection `Foo` when you executethe statement. This can happen with any
+other operation. Not just attributes and documents. Thus, to mitigate this issue, you should use the
+`poll` function exported by this package whenever you need to perform dependant and sequential
+operations in short time spans:
 
 ```js
-dbService.createDocument('[DATABASE_ID]', '[COLLECTION_ID]', '[DOCUMENT_ID]', { "bar": "hello" });
-```
+await db.createStringAttribute('[DATABASE_ID]', '[COLLECTION_ID]', 'bar', 32, true)
 
-To mitigate this issue, you should use the `poll` function exported by this package like so:
+// ❌ Bad code - Document creation likely to fail. Your request for attribute creation may still be queued.
+await dbService.createDocument(
+  '[DATABASE_ID]',
+  '[COLLECTION_ID]',
+  '[DOCUMENT_ID]',
+  { "bar": "hello" },
+)
 
-```js
-const [data, e] = poll({
-  fetcher: async () => await dbService.getCollection('[DATABASE_ID]', '[COLLECTION_ID]'),
-  isCompleted: (data) => 'bar' in data.attributes,
+// ✅ Better code - Document creation unlikely to fail. You give time for Appwrite to work on your request (if needed).
+const [_, e] = await poll({
+  fetcher: async () => await db.getCollection('[DATABASE_ID]', '[COLLECTION_ID]'),
+  isCompleted: ({ attributes }) => attributes.includes('bar'),
 });
 
 if (e) {
-   log(e.message)
+  log(`Migration timed out. Unable to create '[DATABASE_ID]' documents.`)
 
-   return;
+  throw e
 }
 
-dbService.createDocument('[DATABASE_ID]', '[COLLECTION_ID]', '[DOCUMENT_ID]', { "bar": "hello" });
+await dbService.createDocument(
+  '[DATABASE_ID]',
+  '[COLLECTION_ID]',
+  '[DOCUMENT_ID]',
+  { "bar": "hello" },
+)
 ```
 
-The poll function performs the `fetcher` you provided up to five times with exponential backoff.
-Whenever the `fetcher` resolves, it calls the is `isCompleted` callback. If the `isCompleted`
-callback returns `true`, the `poll` function returns the `fetcher` resolved data and an a `null`
-error, meaning it is safe to call the `dbService.createDocument` function. If `isCompleted` never
-returns `true` or all calls to the `fecher` reject with errors, the `poll` function returns
-`null` data and an `error` explaining what failed. It is up to you to decide, wether the migration
-can proceed or should stop.
+The poll function runs the `fetcher` you provide up to five time applying an exponential backoff per
+try (0ms, 5000ms, 10000ms, 20000ms, 40000ms). Whenever the `fetcher` resolves, it calls the is
+`isCompleted` method you provided. In turn, if `isCompleted` returns `true`, the `poll` function
+resolves and returns the `fetcher` resolved data and a `null` error. **It is safe to call the next
+operations in your flow**. Otherwise, `poll` returns `null` data and an `error` explaining what went
+wrong. Particularly, if there was at least one `fetcher` rejection, the last error that was
+encountered is returned to you. If the `fetcher` always resolves but is `isCompleted` always returns
+`false`, a generic Error is returned with a "max retries reached" message. Rejections are ignored if
+subsequent fetcher calls succeed. The `poll` function never returns two non-null values at the same
+time!
 
 #### Migrations in General
 
@@ -389,4 +404,3 @@ creating a new migration file to patch the issue.
    > (collections.read)", it's because you need to add more scopes to your APPWRITE_API_KEY.
    > You can do that by accessing `Project > Settings > API credentials > View API Keys > { Select
    > API KEY } > Scopes`; From here onwards, you need to add the scopes that are missing.
-

@@ -13,7 +13,7 @@ export async function poll<T>({ fetcher, isCompleted }: PolledData<T>): PolledRe
   const interval = secondsToMilliseconds(5);
   const maximumRetries = 4;
   const maximumAttempts = 1 + maximumRetries;
-  const rate = 1.5;
+  const rate = 2;
 
   let attempt = 0;
   let forwardError = new Error(`Maximum attempts reached without meeting 'isComplete' condition.`);
