@@ -281,6 +281,54 @@ through JSDocs (works just like TypeScript) without needing you to do transpilat
 
 ### Recommendations
 
+#### Migrations in Appwrite
+
+Whether you are applying changes to your Appwrite database through their GUI (website),
+the Appwrite CLI, or using this package (ADMT), your changes are not guaranteed to be immediate.
+Your request for changes are "Eventually Consistent". For example, when you ask Appwrite to create a
+new attribute on a collection, that request goes to the queue. Eventually, a Worker picks up the
+request and commits your change requests to your database. Meaning that changes are not immediate
+and can (possibly?) occur out of order.
+
+**What are the implications for you as a developer?**
+
+Again, with an example. Assume you create a collection called `Foo`, with an attribute `bar`.
+Shortly after creating the collection you try to create a document with data `{ "bar": "hello" }`.
+Often, the request will succeed. However, there is a chance you get an error informing you that the
+format of the document is invalid and that `bar` does not exist on collection `Foo`
+when you execute the statement below:
+
+```js
+dbService.createDocument('[DATABASE_ID]', '[COLLECTION_ID]', '[DOCUMENT_ID]', { "bar": "hello" });
+```
+
+To mitigate this issue, you should use the `poll` function exported by this package like so:
+
+```js
+const [data, e] = poll({
+  fetcher: async () => await dbService.getCollection('[DATABASE_ID]', '[COLLECTION_ID]'),
+  isCompleted: (data) => 'bar' in data.attributes,
+});
+
+if (e) {
+   log(e.message)
+
+   return;
+}
+
+dbService.createDocument('[DATABASE_ID]', '[COLLECTION_ID]', '[DOCUMENT_ID]', { "bar": "hello" });
+```
+
+The poll function performs the `fetcher` you provided up to five times with exponential backoff.
+Whenever the `fetcher` resolves, it calls the is `isCompleted` callback. If the `isCompleted`
+callback returns `true`, the `poll` function returns the `fetcher` resolved data and an a `null`
+error, meaning it is safe to call the `dbService.createDocument` function. If `isCompleted` never
+returns `true` or all calls to the `fecher` reject with errors, the `poll` function returns
+`null` data and an `error` explaining what failed. It is up to you to decide, wether the migration
+can proceed or should stop.
+
+#### Migrations in General
+
 - Avoid changing the contents of a migration that you have pushed to a production-like environment.
   - Unless you can confidently revert the database state (e.g.: staging) without affecting end-users.
 - Provide a meaningful descriptions for your migration using the `--descriptor` flag.
