@@ -8,48 +8,39 @@ _**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0
 - [x] Run codegen implementation from a consumer project;
 - [x] Run the MigrationsCreateCollection from a consumer project;
 - [x] Run the MigrationsRunSequence from a consumer project;
-- [ ] Run the one down sequence flow against live Appwrite databases from consuming proeject;
+- [x] Run the one down sequence flow against live Appwrite databases from consuming project;
 - [ ] Add integration tests with mocked Appwrite responses using MSW;
 
 ## Roadmap to v2.0.0
 
-### Deal with Appwrite Eventual Consistency
-
-There are situations where Appwrite acknowledges collection `attribute` creation with `HTTP 201`.
-However, if you try to `createDocument` immediatly after the request fails due to invalid schema
-(`'foo' attribute does not exist on 'bar' collection`). This can be naively fixed with `sleep(4000)`
-before attempting to create document with migrations. However, we suspect that this issue can happen
-with any database/collection operation, not just `createAttribute` and `createDocument` combinations.
-
-#### Deal with Appwrite Eventual Consistency - Possible Solution
-
-Implement a wrapper around the SDK using exponential backoff with up to three retries.
-
 ### Improved fault tolerance (pseudo-transactional behaviour)
 
-Currently, the `MigrationRunSequence` may fail while applying a migration file. If the migration
-fails, the steps that were taken during that particular migration file, are not rolled back. Using
-the down method is an "OK" approach, but not ideal.
+Currently, the `MigrationRunSequence` may fail while applying a user defined migration file.
+If the migration fails, the steps that were taken during that particular migration file, are not
+rolled back. Running the down method is an "OK" approach, but far from ideal, particularly on
+bigger migrations which involve modifying collection data rather than just creating/deleting fields.
 
-#### Possible Solution - Improved fault tolerance (pseudo-transactional behaviour)
+#### Possible Solution
 
-Implement a superset of commands around `DatabaseService` using a `Memento` pattern or some other
-to try to mimic Transactions as much as possible. This solution also requires `retries` with
-exponential backoff and would require some interesting API changes. This means that `ADMT` would
-no longer extend Appwrite functionality and then expose the `Databases` instance, but instead
-would expose a completly different set of commands that would look something like this:
+Implement a superset of commands around `DatabaseService` using a `Memento` pattern to try to mimic
+Transactions as much as possible. The solution involves `retries` with exponential backoff and would
+require some interesting API changes. This means that `ADMT` would no longer just expose Appwrite
+SDK `Databases` functionality, but would also have an API of commands that would intelligently
+know how to rollback themselves if all retries were expended and a given step failed.
+
+Something like the pseudo-code below:
 
 ```ts
 class SomeMigration {
   async up({ db, error, log, sequence }) {
     await sequence
-      .addCommand({
+      .addStep({
         action: 'create',
         type: 'document',
         args: {
           ...argsToPassToDatabasesCreateDocumentMethod
         }
-      }).addCommand({
+      }).addStep({
         action: 'update',
         type: 'document',
         args: {
@@ -65,11 +56,10 @@ class SomeMigration {
     // If some command N + x, x > 0 fails
     // Pop from the executed stack and execute reverse of action
     //   e.g.: delete document when action was create document
-    await sequence.build().execute()
+    await sequence.build().run()
   }
 }
 ```
-
 
 ## Setting Up
 
@@ -80,16 +70,15 @@ These steps only need to be made once*.
 - Create a `GitHub Repository` to host your Appwrite functions.
   - You can use a repository you already own (e.g., `myproject-functions`).
 - Create `environment` branches.
-  - For example, the `main` branch can be assigned to `production` and `staging` branch can be
+  - For example, the `main` branch can be assigned to `production` and `development` branch can be
   assigned to `staging`. This allows you to have multiple Appwrite projects, using a single functions
-  repository containing with multiple serverless entrypoints. Allowing you to effectively
-  test a function in the staging project, before deploying the changes to the main (production)
-  project.
+  repository containing multiple serverless entrypoints. Allowing you to effectively
+  test a function in the staging project, before deploying the changes to the production project.
 
 ### Environment Specific Steps
 
 These steps need to be done per project that represents an application environment in which you want
-to use the Appwrite Database Migration Tool processes.
+to use the Appwrite Database Migration Tool.
 
 #### Functions
 
@@ -97,18 +86,22 @@ Appwrite serverless functions require access to the source code that they need t
 is defined in Git repositories. Setups vary from team to team. Some choose to have one repository
 per serverless function (isolation), while others prefer a single repository with a single `package.json`
 for all functions (agility, low maintenance cost), others still, prefer a Monorepository structure
-with all functions in a single repository, each with its own `package.json` (agility, isolation,
-with higher upfront setup cost). No matter the strategy you must associate
-the source repository with Appwrite serverless functions.
+with all functions in a single repository but each with its own `package.json` (agility, isolation,
+with higher upfront setup cost). No matter the strategy you must associate the source repository
+with Appwrite serverless functions.
 
 - [Appwrite Functions Docs](https://appwrite.io/docs/products/functions/deployment).
 - [Appwrite Functions Video Series (~50m)](https://www.youtube.com/watch?v=UAPt7VBL_T8).
 
 ##### MigrationsCreateCollection
 
+###### Description
+
+> Creates a collection (defaults to `Migration`) which acts as the source of truth for migrations that have been applied or not.
+
 Create an Appwrite Function called `MigrationsCreateCollection` with the body below. The function
 should point at the branch that contains the source for the "environment". E.g.: Point at the
-`staging` branch on the `staging` project and point to `main` in the `production` project.
+`development` branch on the `staging` project and point to `main` in the `production` project.
 
   ```ts
   import { migrationsCreateCollection } from '@franciscokloganb/appwrite-database-migration-tool'
@@ -125,11 +118,36 @@ should point at the branch that contains the source for the "environment". E.g.:
 
 ##### MigrationsRunSequence
 
-Create another Appwrite Function called `MigrationsRunSequence` with the body below. The function
+> Retrieves all migrations, picks the pending (unapplied) migration (if exists) and executes the up method.
+
+Create an Appwrite Function called `MigrationsRunSequence` with the body below. The function
 should point at the branch that contains the source for the "environment".
 
-- Over time you may want to tweak the timeout for this function
-  - Default is 15s, increasae it up to a maximum of 15m in the function settings.
+- We recommend increase the maximum timeout for this function to 15m in the function settings.
+- Ensure the migration files created in the future are included in the final function bundle.
+  - An example on what this means is given on [FAQ](#faq) section.
+
+  ```ts
+  import { migrationsRunSequence } from '@franciscokloganb/appwrite-database-migration-tool'
+
+  export default async function(ctx) {
+    await migrationsRunSequence({
+      log: ctx.log,
+      error: ctx.error,
+    })
+
+    return ctx.res.empty();
+  }
+  ```
+
+##### MigrationsOneDown
+
+> Retrieves all migrations, picks the last applied migration (if exists) and executes the down method.
+
+Create an Appwrite Function called `MigrationsOneDown` with the body below. The function
+should point at the branch that contains the source for the "environment".
+
+- We recommend increase the maximum timeout for this function to 15m in the function settings.
 - Ensure the migration files created in the future are included in the final function bundle.
   - An example on what this means is given on [FAQ](#faq) section.
 
@@ -148,16 +166,14 @@ should point at the branch that contains the source for the "environment".
 
 #### Functions (Optional)
 
-The functions below are optional. They are required for the `Appwrite Database Migration Tool` to
-work. They exist for convinience when starting a project from scratch. When used, they should be
-created following a strategy similar to the ones outlined in [Functions](#functions).
+The functions below are optional. They exist for convinience. When used, they should be
+created following similar strategies to the one outlined in previous [Functions](#functions) section.
 
 ##### MigrationCreateDatabase
 
 Creates a Database with `name` and `id` matching the environment variable `MIGRATIONS_DATABASE_ID`,
 in the default case it will create a database called `Public`. If you already have a Database
-and you prefer to manage the Migrations collection in it, you do not need this function. You also
-do not need it, if you already created the `Public` manually.
+and you prefer to manage the Migrations collection in it, you do not need this function.
 
 ```ts
 import { migrationsCreateDatabase } from '@franciscokloganb/appwrite-database-migration-tool'
@@ -176,8 +192,7 @@ export default async function(ctx) {
 
 Retrieves all collections which exist in the database associated with the environment variable
 `MIGRATIONS_DATABASE_ID` and then deletes them. The closest SQL analogy for this serverless function
-is `DROP TABLE IF EXISTS`. We strongly recommend not creating Appwrite function this one in
-`production`.
+is `DROP TABLE IF EXISTS`. We recommend not setting this one up in your `production` project.
 
 ```ts
 import { migrationsResetDatabase } from '@franciscokloganb/appwrite-database-migration-tool'
@@ -194,7 +209,7 @@ export default async function(ctx) {
 
 #### Function Environment Variables
 
-Both functions that you just created require access to the environment variables below. You can set
+All functions that you just created require access to the environment variables below. You can set
 **them globally in your Appwrite project settings** or scope them to each function. If you opted
 for the scoped approach **ensure** the values match across functions. Also, **ensure** the config
 does not change over time if you run the `runMigrationSequence` at least once. The code is not
