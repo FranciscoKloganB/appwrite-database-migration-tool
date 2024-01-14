@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.0](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.8.3...v0.9.0) (2024-01-14)
+
+
+### Features
+
+* add down one command ([69c06de](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/69c06deb1e8d337fe32865d710023eb4052305b6))
+
 ### [0.8.3](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.8.2...v0.8.3) (2024-01-14)
 
 ### [0.8.2](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.8.1...v0.8.2) (2024-01-14)
