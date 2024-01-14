@@ -9,7 +9,7 @@ type PolledData<T> = {
 
 type PolledResult<T> = Promise<[T, null] | [null, Error]>;
 
-export async function waitPoll<T>({ fetcher, isCompleted }: PolledData<T>): PolledResult<T> {
+export async function poll<T>({ fetcher, isCompleted }: PolledData<T>): PolledResult<T> {
   const interval = secondsToMilliseconds(5);
   const maximumRetries = 4;
   const maximumAttempts = 1 + maximumRetries;

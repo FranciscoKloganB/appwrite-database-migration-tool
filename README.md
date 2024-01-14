@@ -1,6 +1,10 @@
 # Appwrite Database Migration Tool
 
-_**Disclaimer:** This NPM package is in a very early stage, please wait for v1.0.0 release to use on your own projects, unless you want to provide feedback or contribute._
+An appwrite database migration tool with the goal of making schema and data changes across
+environments easier and more predictable.
+
+_**We strongly recommend reading through the entire README, paying close attention to
+[Setting-up](#setting-up) and [Recommendations](#recommendations) sections!**_
 
 ## Roadmap to v1.0.0
 
