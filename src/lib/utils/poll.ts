@@ -2,9 +2,12 @@ import { exponentialBackoff } from './exponentialBackoff';
 import { secondsToMilliseconds } from './secondsToMilliseconds';
 import { sleep } from './sleep';
 
+type PolledFetcher<T> = () => Promise<T>;
+type PolledAsserter<T> = (data: Awaited<ReturnType<PolledFetcher<T>>>) => boolean;
+
 type PolledData<T> = {
-  fetcher: () => Promise<T>;
-  isCompleted: (data: T) => boolean;
+  fetcher: PolledFetcher<T>;
+  isCompleted: PolledAsserter<T>;
 };
 
 type PolledResult<T> = Promise<[T, null] | [null, Error]>;
