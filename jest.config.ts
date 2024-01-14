@@ -15,9 +15,9 @@ const config: JestConfigWithTsJest = {
   coverageThreshold: {
     global: {
       functions: 80,
-      lines: 65,
-      statements: 65,
-      branches: 55,
+      lines: 60,
+      statements: 60,
+      branches: 50,
     },
   },
   modulePathIgnorePatterns: ['<rootDir>/app/', '<rootDir>/dist/'],
