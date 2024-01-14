@@ -34,10 +34,12 @@ function configuration() {
   };
 }
 
-export async function migrationsRunSequence({ log, error }: { log: Logger; error: Logger }) {
-  log('Run migration sequence started.');
+export async function migrationsDownOne({ log, error }: { log: Logger; error: Logger }) {
+  log('Started migrationsDownOne.');
 
   const { apiKey, collectionId, databaseId, endpoint, projectId } = configuration();
+
+  log(`Will look for last applied migration on database ${databaseId} and down it.`);
 
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
   const databaseService = DatabaseService.create({ client, databaseId });
@@ -45,7 +47,7 @@ export async function migrationsRunSequence({ log, error }: { log: Logger; error
   const databaseExists = await databaseService.databaseExists();
 
   if (!databaseExists) {
-    error(`Can't prooced. Database ${databaseId} does not exist.`);
+    error(`Can't prooced. Database ${databaseId} does not exist on project ${projectId}.`);
 
     return;
   }
@@ -71,8 +73,6 @@ export async function migrationsRunSequence({ log, error }: { log: Logger; error
     log,
   });
 
-  log('Setting up migration service...');
-
   const migrationService = MigrationService.create({
     error,
     log,
@@ -80,9 +80,11 @@ export async function migrationsRunSequence({ log, error }: { log: Logger; error
     remoteMigrationRepository,
   });
 
+  log('Setting up migration service...');
+
   await Promise.all([migrationService.withLocalEntities(), migrationService.withRemoteEntities()]);
 
-  await migrationService.withMigrations().executePendingMigrations(databaseService);
+  await migrationService.withMigrations().undoLastMigration(databaseService);
 
-  log('Run migration sequence completed successfully.');
+  log('Completed migrationsDownOne.');
 }

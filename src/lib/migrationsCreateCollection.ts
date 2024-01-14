@@ -39,31 +39,42 @@ function configuration() {
 }
 
 export async function migrationsCreateCollection({ log, error }: { log: Logger; error: Logger }) {
-  log('Create migration collection started.');
+  log('Started migrationsCreateCollection.');
 
   const { endpoint, apiKey, databaseId, collectionId, collectionName, projectId } = configuration();
 
-  log(`Initiating client. Endpoint: ${endpoint}, ProjectID: ${projectId}`);
+  log(`Will create the migration collection ${collectionName} on database ${databaseId}.`);
 
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
   const databaseService = DatabaseService.create({ client, databaseId });
+
+  const databaseExists = await databaseService.databaseExists();
+
+  if (!databaseExists) {
+    error(`Can't prooced. Database ${databaseId} does not exist on project ${projectId}.`);
+
+    return;
+  }
+
   const collectionExists = await databaseService.collectionExists(collectionId);
 
   if (collectionExists) {
-    log('Create migration collection exited. Collection already exists.');
+    error(`Can't prooced. Collection ${collectionId} already exists on database ${databaseId}.`);
 
     return;
   }
 
   await databaseService
     .createCollection(databaseId, collectionId, collectionName)
-    .then(() => log('Create migration collection completed successfully.'))
+    .then(() => log(`Created Migration collection ${collectionName} (id: ${collectionId}).`))
     .catch((e) => {
       error(`Could not create collection ${collectionName} (id: ${collectionId}).`);
 
       if (e instanceof Error) {
         error(e.message);
       }
+
+      throw e;
     });
 
   await databaseService.createBooleanAttribute(
@@ -95,4 +106,6 @@ export async function migrationsCreateCollection({ log, error }: { log: Logger; 
     undefined,
     false,
   );
+
+  log('Completed migrationsCreateCollection.');
 }
