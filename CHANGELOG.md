@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.2](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.7.1...v0.7.2) (2024-01-14)
+
+
+### Features
+
+* add waitPoll utility ([95f027b](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/95f027bf09ccfb19196d409c4a6e5561d1d1bbc3))
+* **MigrationService:** add remoteMigrations and localMigrations getters ([7a74dc9](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/7a74dc971c0a0a2e141a8bf2f3100ee186f7a5d1))
+
 ### [0.7.1](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.7.0...v0.7.1) (2024-01-12)
 
 
