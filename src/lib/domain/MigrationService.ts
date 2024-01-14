@@ -117,31 +117,33 @@ export class MigrationService {
   /* -------------------------------------------------------------------------- */
   /*                               public methods                               */
   /* -------------------------------------------------------------------------- */
-  public get remoteMigrations(): Array<RemoteMigrationVO> {
-    return this.#remoteEntities.map((m) => m.value);
+  /** Gets an array containing all executed migrations, sorted by timestamp ASC. */
+  public get appliedMigrations(): Array<Migration> {
+    return this.#migrations.filter((m) => m.isExecuted());
   }
 
+  /** Gets an array containing local migration value objects sorted by timestamp ASC */
   public get localMigrations(): Array<LocalMigrationVO> {
     return this.#localEntities.map((m) => m.value);
   }
 
+  /** Gets an array containing remote migration value objects sorted by timestamp ASC */
+  public get remoteMigrations(): Array<RemoteMigrationVO> {
+    return this.#remoteEntities.map((m) => m.value);
+  }
+
   /** Gets an array containing all executed and pending migrations sorted by timestamp ASC. */
-  public get migrations() {
+  public get migrations(): Array<Migration> {
     return this.#migrations;
   }
 
-  /** Gets an array containing all executed migrations, sorted by timestamp ASC. */
-  public get executedMigrations() {
-    return this.#migrations.filter((m) => m.isExecuted());
-  }
-
   /** Gets an array containing all pending migrations, sorted by timestamp ASC. */
-  public get pendingMigrations() {
+  public get pendingMigrations(): Array<Migration> {
     return this.#migrations.filter((m) => m.isPending());
   }
 
   /** Gets the latest migration regardless of it's applied state */
-  public get latestMigration() {
+  public get latestMigration(): Migration | undefined {
     return this.#migrations.at(-1);
   }
 
@@ -195,7 +197,7 @@ export class MigrationService {
   public async undoLastMigration(databaseService: DatabaseService) {
     this.#log(`Undoing last applied migration...`);
 
-    const migration = this.executedMigrations.at(-1);
+    const migration = this.appliedMigrations.at(-1);
 
     if (migration) {
       try {

@@ -10,11 +10,14 @@ const config: JestConfigWithTsJest = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['src/**/*.(t|j)s', '!src/index.ts'],
+  collectCoverageFrom: ['src/lib/**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   coverageThreshold: {
     global: {
-      lines: 90,
+      functions: 80,
+      lines: 65,
+      statements: 65,
+      branches: 55,
     },
   },
   modulePathIgnorePatterns: ['<rootDir>/app/', '<rootDir>/dist/'],

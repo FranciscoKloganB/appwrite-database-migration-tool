@@ -9,7 +9,8 @@ import {
 } from '@lib/repositories';
 import { createId } from '@lib/utils';
 
-import { Migration } from '.';
+import { DatabaseService } from './DatabaseService';
+import { Migration } from './entities/Migration';
 import { MigrationService } from './MigrationService';
 
 describe('MigrationService', () => {
@@ -198,20 +199,24 @@ describe('MigrationService', () => {
   });
 
   describe('migrations', () => {
-    async function setup() {
+    async function setup({
+      localMigrationEntities,
+      remoteMigrationEntities,
+    }: {
+      localMigrationEntities?: LocalMigrationEntity[];
+      remoteMigrationEntities?: RemoteMigrationEntity[];
+    } = {}) {
       const migrationService = createSubject();
 
       const entities = createDependencies();
 
-      remoteMigrationRepository.listMigrations.mockResolvedValue([
-        entities.firstRemoteEntity,
-        entities.secondRemoteEntity,
-      ]);
+      remoteMigrationRepository.listMigrations.mockResolvedValue(
+        remoteMigrationEntities ?? [entities.firstRemoteEntity, entities.secondRemoteEntity],
+      );
 
-      localMigrationRepository.listMigrations.mockResolvedValue([
-        entities.secondLocalEntity,
-        entities.firstLocalEntity,
-      ]);
+      localMigrationRepository.listMigrations.mockResolvedValue(
+        localMigrationEntities ?? [entities.secondLocalEntity, entities.firstLocalEntity],
+      );
 
       await migrationService.withLocalEntities();
       await migrationService.withRemoteEntities();
@@ -279,15 +284,60 @@ describe('MigrationService', () => {
       expect(migrationService.latestMigration?.$id).toEqual(secondRemoteEntity.$id);
     });
 
-    it('shouldd undefined when retrieving the latest migration and migrations are not loaded', async () => {
+    it('should undefined when retrieving the latest migration and migrations are not loaded', async () => {
       const migrationService = createSubject();
 
       expect(migrationService.latestMigration).toBeUndefined();
     });
 
-    it.todo('executedMigrations');
-    it.todo('executePendingMigrations');
-    it.todo('pendingMigrations');
-    it.todo('undoLastMigration');
+    it('should be possible to retrieve pending migrations', async () => {
+      const { migrationService, secondRemoteEntity } = await setup();
+
+      const result = migrationService.pendingMigrations;
+
+      expect(result).toBeInstanceOf(Array);
+      expect(result).toHaveLength(1);
+      expect(result[0].$id).toEqual(secondRemoteEntity.$id);
+    });
+
+    it('should be possible to retrieve applied migrations', async () => {
+      const { migrationService, firstRemoteEntity } = await setup();
+
+      const result = migrationService.appliedMigrations;
+
+      expect(result).toBeInstanceOf(Array);
+      expect(result).toHaveLength(1);
+      expect(result[0].$id).toEqual(firstRemoteEntity.$id);
+    });
+
+    it('undoLastMigration', async () => {
+      const { migrationService } = await setup();
+
+      const databaseService = createMock<DatabaseService>();
+      const migrationUnapplySpy = jest.spyOn(Migration.prototype, 'unapply');
+
+      expect(migrationService.appliedMigrations).toHaveLength(1);
+      expect(migrationService.pendingMigrations).toHaveLength(1);
+
+      await migrationService.undoLastMigration(databaseService);
+
+      expect(migrationService.pendingMigrations).toHaveLength(2);
+      expect(migrationUnapplySpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('executePendingMigrations', async () => {
+      const { migrationService } = await setup();
+
+      const databaseService = createMock<DatabaseService>();
+      const migrationApplySpy = jest.spyOn(Migration.prototype, 'apply');
+
+      expect(migrationService.appliedMigrations).toHaveLength(1);
+      expect(migrationService.pendingMigrations).toHaveLength(1);
+
+      await migrationService.executePendingMigrations(databaseService);
+
+      expect(migrationService.appliedMigrations).toHaveLength(2);
+      expect(migrationApplySpy).toHaveBeenCalledTimes(1);
+    });
   });
 });
