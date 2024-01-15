@@ -1,11 +1,11 @@
+import { poll } from './poll';
 import { sleep } from './sleep';
-import { waitPoll } from './waitPoll';
 
 jest.mock('./sleep.ts', () => ({
   sleep: jest.fn(),
 }));
 
-describe('waitPoll', () => {
+describe('poll', () => {
   const fetcher = jest.fn();
   const isCompleted = jest.fn();
 
@@ -13,7 +13,7 @@ describe('waitPoll', () => {
     jest.clearAllMocks();
   });
 
-  describe('waitPoll', () => {
+  describe('poll', () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
@@ -24,7 +24,7 @@ describe('waitPoll', () => {
       fetcher.mockResolvedValue(collectionData);
       isCompleted.mockImplementation((data) => data.attributes.includes('friendly'));
 
-      const result = await waitPoll({
+      const result = await poll({
         fetcher,
         isCompleted,
       });
@@ -49,7 +49,7 @@ describe('waitPoll', () => {
 
       isCompleted.mockImplementation((data) => data.attributes.includes('friendly'));
 
-      const result = await waitPoll({
+      const result = await poll({
         fetcher,
         isCompleted,
       });
@@ -71,7 +71,7 @@ describe('waitPoll', () => {
       fetcher.mockResolvedValue(collectionData);
       isCompleted.mockReturnValue(false);
 
-      const [data, error] = await waitPoll({
+      const [data, error] = await poll({
         fetcher,
         isCompleted,
       });
@@ -100,7 +100,7 @@ describe('waitPoll', () => {
       fetcher.mockRejectedValue(fetchError);
       isCompleted.mockReturnValue(false);
 
-      const [data, error] = await waitPoll({
+      const [data, error] = await poll({
         fetcher,
         isCompleted,
       });
@@ -127,7 +127,7 @@ describe('waitPoll', () => {
 
       isCompleted.mockReturnValue(false);
 
-      const [data, error] = await waitPoll({
+      const [data, error] = await poll({
         fetcher,
         isCompleted,
       });

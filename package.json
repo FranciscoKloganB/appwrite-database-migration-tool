@@ -1,6 +1,6 @@
 {
   "name": "@franciscokloganb/appwrite-database-migration-tool",
-  "description": "A database migration framework which intends to make your appwrite database schema and data changes easier and more predictable",
+  "description": "An appwrite database migration tool with the goal of making schema and data changes across environments easier and more predictable.",
   "author": "franciscokloganb",
   "keywords": [
     "appwrite",
@@ -124,5 +124,5 @@
     "up:install": "taze major --install && npx taze -w && npm i"
   },
   "type": "module",
-  "version": "0.7.1"
+  "version": "0.9.0"
 }

@@ -27,18 +27,17 @@ function configuration() {
 }
 
 export async function migrationsResetDatabase({ log, error }: { log: Logger; error: Logger }) {
-  log('Reset database started.');
+  log('Started migrationsResetDatabase.');
 
   const { endpoint, apiKey, databaseId, projectId } = configuration();
 
-  log(`Initiating client. Endpoint: ${endpoint}, ProjectID: ${projectId}`);
-
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
   const databaseService = DatabaseService.create({ client, databaseId });
+
   const databaseExists = await databaseService.databaseExists();
 
   if (!databaseExists) {
-    log('Create migration database exited. Database does not exist.');
+    error(`Can't prooced. Database ${databaseId} does not exist on project ${projectId}.`);
 
     return;
   }
@@ -51,7 +50,7 @@ export async function migrationsResetDatabase({ log, error }: { log: Logger; err
 
       await databaseService.dropCollection(collection.$id);
 
-      log(`Successfully deleted named ${collection.name} (id: ${collection.$id})..`);
+      log(`Deleted collection ${collection.name} (id: ${collection.$id}).`);
     } catch (e) {
       error(`Failed to delete collection named ${collection.name} (id: ${collection.$id}).`);
 
@@ -59,5 +58,5 @@ export async function migrationsResetDatabase({ log, error }: { log: Logger; err
     }
   }
 
-  log('Reset database completed. All collections have been dropped.');
+  log('Completed migrationsResetDatabase. All collections have been dropped.');
 }

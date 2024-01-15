@@ -2,18 +2,21 @@ import { exponentialBackoff } from './exponentialBackoff';
 import { secondsToMilliseconds } from './secondsToMilliseconds';
 import { sleep } from './sleep';
 
+type PolledFetcher<T> = () => Promise<T>;
+type PolledAsserter<T> = (data: Awaited<ReturnType<PolledFetcher<T>>>) => boolean;
+
 type PolledData<T> = {
-  fetcher: () => Promise<T>;
-  isCompleted: (data: T) => boolean;
+  fetcher: PolledFetcher<T>;
+  isCompleted: PolledAsserter<T>;
 };
 
 type PolledResult<T> = Promise<[T, null] | [null, Error]>;
 
-export async function waitPoll<T>({ fetcher, isCompleted }: PolledData<T>): PolledResult<T> {
+export async function poll<T>({ fetcher, isCompleted }: PolledData<T>): PolledResult<T> {
   const interval = secondsToMilliseconds(5);
   const maximumRetries = 4;
   const maximumAttempts = 1 + maximumRetries;
-  const rate = 1.5;
+  const rate = 2;
 
   let attempt = 0;
   let forwardError = new Error(`Maximum attempts reached without meeting 'isComplete' condition.`);

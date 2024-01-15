@@ -27,30 +27,35 @@ function configuration() {
 }
 
 export async function migrationsCreateDatabase({ log, error }: { log: Logger; error: Logger }) {
-  log('Create migration database started.');
+  log('Started migrationsCreateDatabase.');
 
   const { endpoint, apiKey, databaseId, projectId } = configuration();
 
-  log(`Initiating client. Endpoint: ${endpoint}, ProjectID: ${projectId}`);
+  log(`Will create the migration database ${databaseId} on project ${projectId}.`);
 
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
   const databaseService = DatabaseService.create({ client, databaseId });
+
   const databaseExists = await databaseService.databaseExists();
 
-  if (databaseExists) {
-    log('Create migration database exited. Database already exists.');
+  if (!databaseExists) {
+    error(`Can't prooced. Database ${databaseId} already exists on project ${projectId}.`);
 
     return;
   }
 
   await databaseService
     .create(databaseId, databaseId)
-    .then(() => log('Create migration database completed successfully.'))
+    .then(() => log(`Created database ${databaseId} (id: ${databaseId}).`))
     .catch((e) => {
       error(`Could not create database ${databaseId} (id: ${databaseId}).`);
 
       if (e instanceof Error) {
         error(e.message);
       }
+
+      throw e;
     });
+
+  log('Completed migrationsCreateDatabase.');
 }
