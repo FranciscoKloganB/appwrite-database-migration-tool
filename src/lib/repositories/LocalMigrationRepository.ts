@@ -68,7 +68,7 @@ export class LocalMigrationRepository implements IMigrationRepository {
         const name = instance.constructor.name;
         const timestamp = this.getTimestampFromClassname(name);
 
-        this.#log(`module name, up, down: ${name}, ${typeof instance.up}, ${typeof instance.down}`);
+        this.#log(`Loaded local migration entity: ${name}`);
 
         return LocalMigrationEntity.create({
           instance,
