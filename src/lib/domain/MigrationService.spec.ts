@@ -94,258 +94,259 @@ describe('MigrationService', () => {
       expect(migrationService.localMigrations).toHaveLength(0);
     });
 
-  describe('remoteMigrations', () => {
-    it('should be an array', () => {
-      const migrationService = createSubject();
+    describe('remoteMigrations', () => {
+      it('should be an array', () => {
+        const migrationService = createSubject();
 
-      expect(migrationService.remoteMigrations).toBeInstanceOf(Array);
+        expect(migrationService.remoteMigrations).toBeInstanceOf(Array);
+      });
+
+      it('should be empty', () => {
+        const migrationService = createSubject();
+
+        expect(migrationService.remoteMigrations).toHaveLength(0);
+      });
     });
 
-    it('should be empty', () => {
-      const migrationService = createSubject();
+    describe('withLocalEntities', () => {
+      it('should be possible to fill local migrations', async () => {
+        const migrationService = createSubject();
+        const { firstLocalEntity, secondLocalEntity } = createDependencies();
 
-      expect(migrationService.remoteMigrations).toHaveLength(0);
-    });
-  });
+        localMigrationRepository.listMigrations.mockResolvedValue([
+          firstLocalEntity,
+          secondLocalEntity,
+        ]);
 
-  describe('withLocalEntities', () => {
-    it('should be possible to fill local migrations', async () => {
-      const migrationService = createSubject();
-      const { firstLocalEntity, secondLocalEntity } = createDependencies();
+        await migrationService.withLocalEntities();
 
-      localMigrationRepository.listMigrations.mockResolvedValue([
-        firstLocalEntity,
-        secondLocalEntity,
-      ]);
+        expect(migrationService.localMigrations).toHaveLength(2);
+      });
 
-      await migrationService.withLocalEntities();
+      it('should sort the local migrations by timestamp ASC when they are loaded', async () => {
+        const migrationService = createSubject();
+        const { firstLocalEntity, secondLocalEntity } = createDependencies();
 
-      expect(migrationService.localMigrations).toHaveLength(2);
-    });
+        localMigrationRepository.listMigrations.mockResolvedValue([
+          secondLocalEntity,
+          firstLocalEntity,
+        ]);
 
-    it('should sort the local migrations by timestamp ASC when they are loaded', async () => {
-      const migrationService = createSubject();
-      const { firstLocalEntity, secondLocalEntity } = createDependencies();
+        await migrationService.withLocalEntities();
 
-      localMigrationRepository.listMigrations.mockResolvedValue([
-        secondLocalEntity,
-        firstLocalEntity,
-      ]);
+        const [olderVO, newerVO] = migrationService.localMigrations;
 
-      await migrationService.withLocalEntities();
+        expect(olderVO.name).toEqual(firstLocalEntity.name);
+        expect(olderVO.timestamp).toEqual(firstLocalEntity.timestamp);
 
-      const [olderVO, newerVO] = migrationService.localMigrations;
+        expect(newerVO.name).toEqual(secondLocalEntity.name);
+        expect(newerVO.timestamp).toEqual(secondLocalEntity.timestamp);
 
-      expect(olderVO.name).toEqual(firstLocalEntity.name);
-      expect(olderVO.timestamp).toEqual(firstLocalEntity.timestamp);
+        expect(newerVO.timestamp).toBeGreaterThan(olderVO.timestamp);
+      });
 
-      expect(newerVO.name).toEqual(secondLocalEntity.name);
-      expect(newerVO.timestamp).toEqual(secondLocalEntity.timestamp);
+      it('should return the migration service instance allowing method chaining', async () => {
+        const migrationService = createSubject();
 
-      expect(newerVO.timestamp).toBeGreaterThan(olderVO.timestamp);
-    });
+        localMigrationRepository.listMigrations.mockResolvedValue([]);
 
-    it('should return the migration service instance allowing method chaining', async () => {
-      const migrationService = createSubject();
+        const result = await migrationService.withLocalEntities();
 
-      localMigrationRepository.listMigrations.mockResolvedValue([]);
-
-      const result = await migrationService.withLocalEntities();
-
-      expect(result).toBe(migrationService);
-    });
-  });
-
-  describe('withRemoteEntities', () => {
-    it('should be possible to fill remote migrations', async () => {
-      const migrationService = createSubject();
-
-      const { firstRemoteEntity, secondRemoteEntity } = createDependencies();
-
-      remoteMigrationRepository.listMigrations.mockResolvedValue([
-        firstRemoteEntity,
-        secondRemoteEntity,
-      ]);
-
-      await migrationService.withRemoteEntities();
-
-      expect(migrationService.remoteMigrations).toHaveLength(2);
+        expect(result).toBe(migrationService);
+      });
     });
 
-    it('should sort the remote migrations by timestamp ASC when they are loaded', async () => {
-      const migrationService = createSubject();
+    describe('withRemoteEntities', () => {
+      it('should be possible to fill remote migrations', async () => {
+        const migrationService = createSubject();
 
-      const { firstRemoteEntity, secondRemoteEntity } = createDependencies();
+        const { firstRemoteEntity, secondRemoteEntity } = createDependencies();
 
-      remoteMigrationRepository.listMigrations.mockResolvedValue([
-        secondRemoteEntity,
-        firstRemoteEntity,
-      ]);
+        remoteMigrationRepository.listMigrations.mockResolvedValue([
+          firstRemoteEntity,
+          secondRemoteEntity,
+        ]);
 
-      await migrationService.withRemoteEntities();
+        await migrationService.withRemoteEntities();
 
-      const [olderVO, newerVO] = migrationService.remoteMigrations;
+        expect(migrationService.remoteMigrations).toHaveLength(2);
+      });
 
-      expect(olderVO.name).toEqual(firstRemoteEntity.name);
-      expect(olderVO.timestamp).toEqual(firstRemoteEntity.timestamp);
+      it('should sort the remote migrations by timestamp ASC when they are loaded', async () => {
+        const migrationService = createSubject();
 
-      expect(newerVO.name).toEqual(secondRemoteEntity.name);
-      expect(newerVO.timestamp).toEqual(secondRemoteEntity.timestamp);
+        const { firstRemoteEntity, secondRemoteEntity } = createDependencies();
 
-      expect(newerVO.timestamp).toBeGreaterThanOrEqual(olderVO.timestamp);
+        remoteMigrationRepository.listMigrations.mockResolvedValue([
+          secondRemoteEntity,
+          firstRemoteEntity,
+        ]);
+
+        await migrationService.withRemoteEntities();
+
+        const [olderVO, newerVO] = migrationService.remoteMigrations;
+
+        expect(olderVO.name).toEqual(firstRemoteEntity.name);
+        expect(olderVO.timestamp).toEqual(firstRemoteEntity.timestamp);
+
+        expect(newerVO.name).toEqual(secondRemoteEntity.name);
+        expect(newerVO.timestamp).toEqual(secondRemoteEntity.timestamp);
+
+        expect(newerVO.timestamp).toBeGreaterThanOrEqual(olderVO.timestamp);
+      });
+
+      it('should return the migration service instance allowing method chaining', async () => {
+        const migrationService = createSubject();
+
+        remoteMigrationRepository.listMigrations.mockResolvedValue([]);
+
+        const result = await migrationService.withRemoteEntities();
+
+        expect(result).toBe(migrationService);
+      });
     });
 
-    it('should return the migration service instance allowing method chaining', async () => {
-      const migrationService = createSubject();
+    describe('migrations', () => {
+      async function setup({
+        localMigrationEntities,
+        remoteMigrationEntities,
+      }: {
+        localMigrationEntities?: LocalMigrationEntity[];
+        remoteMigrationEntities?: RemoteMigrationEntity[];
+      } = {}) {
+        const migrationService = createSubject();
 
-      remoteMigrationRepository.listMigrations.mockResolvedValue([]);
+        const entities = createDependencies();
 
-      const result = await migrationService.withRemoteEntities();
+        remoteMigrationRepository.listMigrations.mockResolvedValue(
+          remoteMigrationEntities ?? [entities.firstRemoteEntity, entities.secondRemoteEntity],
+        );
 
-      expect(result).toBe(migrationService);
-    });
-  });
+        localMigrationRepository.listMigrations.mockResolvedValue(
+          localMigrationEntities ?? [entities.secondLocalEntity, entities.firstLocalEntity],
+        );
 
-  describe('migrations', () => {
-    async function setup({
-      localMigrationEntities,
-      remoteMigrationEntities,
-    }: {
-      localMigrationEntities?: LocalMigrationEntity[];
-      remoteMigrationEntities?: RemoteMigrationEntity[];
-    } = {}) {
-      const migrationService = createSubject();
+        await migrationService.withLocalEntities();
+        await migrationService.withRemoteEntities();
+        await migrationService.withMigrations();
 
-      const entities = createDependencies();
+        return { ...entities, migrationService };
+      }
 
-      remoteMigrationRepository.listMigrations.mockResolvedValue(
-        remoteMigrationEntities ?? [entities.firstRemoteEntity, entities.secondRemoteEntity],
-      );
+      it('should return the migration service instance allowing method chaining', async () => {
+        const migrationService = createSubject();
 
-      localMigrationRepository.listMigrations.mockResolvedValue(
-        localMigrationEntities ?? [entities.secondLocalEntity, entities.firstLocalEntity],
-      );
+        await migrationService.withLocalEntities();
+        await migrationService.withRemoteEntities();
 
-      await migrationService.withLocalEntities();
-      await migrationService.withRemoteEntities();
-      await migrationService.withMigrations();
+        const result = await migrationService.withMigrations();
 
-      return { ...entities, migrationService };
-    }
+        expect(result).toBe(migrationService);
+      });
 
-    it('should return the migration service instance allowing method chaining', async () => {
-      const migrationService = createSubject();
+      it('should be possible to load migrations', async () => {
+        const migrationService = createSubject();
 
-      await migrationService.withLocalEntities();
-      await migrationService.withRemoteEntities();
+        const { firstLocalEntity, firstRemoteEntity, secondLocalEntity, secondRemoteEntity } =
+          createDependencies();
 
-      const result = await migrationService.withMigrations();
+        remoteMigrationRepository.listMigrations.mockResolvedValue([
+          firstRemoteEntity,
+          secondRemoteEntity,
+        ]);
 
-      expect(result).toBe(migrationService);
-    });
+        localMigrationRepository.listMigrations.mockResolvedValue([
+          firstLocalEntity,
+          secondLocalEntity,
+        ]);
 
-    it('should be possible to load migrations', async () => {
-      const migrationService = createSubject();
+        await migrationService.withLocalEntities();
+        await migrationService.withRemoteEntities();
+        await migrationService.withMigrations();
 
-      const { firstLocalEntity, firstRemoteEntity, secondLocalEntity, secondRemoteEntity } =
-        createDependencies();
+        const result = migrationService.migrations;
 
-      remoteMigrationRepository.listMigrations.mockResolvedValue([
-        firstRemoteEntity,
-        secondRemoteEntity,
-      ]);
+        expect(result).toBeInstanceOf(Array);
+        expect(result).toHaveLength(2);
+        expect(result.every((m) => m instanceof Migration)).toBe(true);
+      });
 
-      localMigrationRepository.listMigrations.mockResolvedValue([
-        firstLocalEntity,
-        secondLocalEntity,
-      ]);
+      it('should sort the migrations by timestamp ASC when they are loaded', async () => {
+        const { migrationService, firstLocalEntity, secondLocalEntity } = await setup();
 
-      await migrationService.withLocalEntities();
-      await migrationService.withRemoteEntities();
-      await migrationService.withMigrations();
+        const [older, newer] = migrationService.migrations;
 
-      const result = migrationService.migrations;
+        expect(older.name).toEqual(firstLocalEntity.name);
+        expect(older.timestamp).toEqual(firstLocalEntity.timestamp);
 
-      expect(result).toBeInstanceOf(Array);
-      expect(result).toHaveLength(2);
-      expect(result.every((m) => m instanceof Migration)).toBe(true);
-    });
+        expect(newer.name).toEqual(secondLocalEntity.name);
+        expect(newer.timestamp).toEqual(secondLocalEntity.timestamp);
 
-    it('should sort the migrations by timestamp ASC when they are loaded', async () => {
-      const { migrationService, firstLocalEntity, secondLocalEntity } = await setup();
+        expect(newer.timestamp).toBeGreaterThan(older.timestamp);
+      });
 
-      const [older, newer] = migrationService.migrations;
+      it('should be possible to retrieve the latest migration', async () => {
+        const { migrationService, secondRemoteEntity } = await setup();
 
-      expect(older.name).toEqual(firstLocalEntity.name);
-      expect(older.timestamp).toEqual(firstLocalEntity.timestamp);
+        expect(migrationService.latestMigration).toBeDefined();
+        expect(migrationService.latestMigration?.$id).toEqual(secondRemoteEntity.$id);
+      });
 
-      expect(newer.name).toEqual(secondLocalEntity.name);
-      expect(newer.timestamp).toEqual(secondLocalEntity.timestamp);
+      it('should undefined when retrieving the latest migration and migrations are not loaded', async () => {
+        const migrationService = createSubject();
 
-      expect(newer.timestamp).toBeGreaterThan(older.timestamp);
-    });
+        expect(migrationService.latestMigration).toBeUndefined();
+      });
 
-    it('should be possible to retrieve the latest migration', async () => {
-      const { migrationService, secondRemoteEntity } = await setup();
+      it('should be possible to retrieve pending migrations', async () => {
+        const { migrationService, secondRemoteEntity } = await setup();
 
-      expect(migrationService.latestMigration).toBeDefined();
-      expect(migrationService.latestMigration?.$id).toEqual(secondRemoteEntity.$id);
-    });
+        const result = migrationService.pendingMigrations;
 
-    it('should undefined when retrieving the latest migration and migrations are not loaded', async () => {
-      const migrationService = createSubject();
+        expect(result).toBeInstanceOf(Array);
+        expect(result).toHaveLength(1);
+        expect(result[0].$id).toEqual(secondRemoteEntity.$id);
+      });
 
-      expect(migrationService.latestMigration).toBeUndefined();
-    });
+      it('should be possible to retrieve applied migrations', async () => {
+        const { migrationService, firstRemoteEntity } = await setup();
 
-    it('should be possible to retrieve pending migrations', async () => {
-      const { migrationService, secondRemoteEntity } = await setup();
+        const result = migrationService.appliedMigrations;
 
-      const result = migrationService.pendingMigrations;
+        expect(result).toBeInstanceOf(Array);
+        expect(result).toHaveLength(1);
+        expect(result[0].$id).toEqual(firstRemoteEntity.$id);
+      });
 
-      expect(result).toBeInstanceOf(Array);
-      expect(result).toHaveLength(1);
-      expect(result[0].$id).toEqual(secondRemoteEntity.$id);
-    });
+      it('undoLastMigration', async () => {
+        const { migrationService } = await setup();
 
-    it('should be possible to retrieve applied migrations', async () => {
-      const { migrationService, firstRemoteEntity } = await setup();
+        const databaseService = createMock<DatabaseService>();
+        const migrationUnapplySpy = jest.spyOn(Migration.prototype, 'unapply');
 
-      const result = migrationService.appliedMigrations;
+        expect(migrationService.appliedMigrations).toHaveLength(1);
+        expect(migrationService.pendingMigrations).toHaveLength(1);
 
-      expect(result).toBeInstanceOf(Array);
-      expect(result).toHaveLength(1);
-      expect(result[0].$id).toEqual(firstRemoteEntity.$id);
-    });
+        await migrationService.undoLastMigration(databaseService);
 
-    it('undoLastMigration', async () => {
-      const { migrationService } = await setup();
+        expect(migrationService.pendingMigrations).toHaveLength(2);
+        expect(migrationUnapplySpy).toHaveBeenCalledTimes(1);
+      });
 
-      const databaseService = createMock<DatabaseService>();
-      const migrationUnapplySpy = jest.spyOn(Migration.prototype, 'unapply');
+      it('executePendingMigrations', async () => {
+        const { migrationService } = await setup();
 
-      expect(migrationService.appliedMigrations).toHaveLength(1);
-      expect(migrationService.pendingMigrations).toHaveLength(1);
+        const databaseService = createMock<DatabaseService>();
+        const migrationApplySpy = jest.spyOn(Migration.prototype, 'apply');
 
-      await migrationService.undoLastMigration(databaseService);
+        expect(migrationService.appliedMigrations).toHaveLength(1);
+        expect(migrationService.pendingMigrations).toHaveLength(1);
 
-      expect(migrationService.pendingMigrations).toHaveLength(2);
-      expect(migrationUnapplySpy).toHaveBeenCalledTimes(1);
-    });
+        await migrationService.executePendingMigrations(databaseService);
 
-    it('executePendingMigrations', async () => {
-      const { migrationService } = await setup();
-
-      const databaseService = createMock<DatabaseService>();
-      const migrationApplySpy = jest.spyOn(Migration.prototype, 'apply');
-
-      expect(migrationService.appliedMigrations).toHaveLength(1);
-      expect(migrationService.pendingMigrations).toHaveLength(1);
-
-      await migrationService.executePendingMigrations(databaseService);
-
-      expect(migrationService.appliedMigrations).toHaveLength(2);
-      expect(migrationApplySpy).toHaveBeenCalledTimes(1);
+        expect(migrationService.appliedMigrations).toHaveLength(2);
+        expect(migrationApplySpy).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });

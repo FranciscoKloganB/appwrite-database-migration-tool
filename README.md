@@ -314,7 +314,7 @@ await dbService.createDocument(
 // ✅ Better code - Document creation unlikely to fail. You give time for Appwrite to work on your request (if needed).
 const [_, e] = await poll({
   fetcher: async () => await db.getCollection('[DATABASE_ID]', '[COLLECTION_ID]'),
-  isCompleted: ({ attributes }) => attributes.includes('bar'),
+  isReady: ({ attributes }) => attributes.includes('bar'),
 });
 
 if (e) {
@@ -331,16 +331,18 @@ await dbService.createDocument(
 )
 ```
 
-The poll function runs the `fetcher` you provide up to five time applying an exponential backoff per
-try (0ms, 5000ms, 10000ms, 20000ms, 40000ms). Whenever the `fetcher` resolves, it calls the is
-`isCompleted` method you provided. In turn, if `isCompleted` returns `true`, the `poll` function
+The poll function runs the `fetcher` you provide up to six times applying an exponential backoff per
+try (0ms, 5000ms, 10000ms, 20000ms, 40000ms, 80000ms). Whenever the `fetcher` resolves, it calls the
+is `isReady` method you provided. In turn, if `isReady` returns `true`, the `poll` function
 resolves and returns the `fetcher` resolved data and a `null` error. **It is safe to call the next
-operations in your flow**. Otherwise, `poll` returns `null` data and an `error` explaining what went
-wrong. Particularly, if there was at least one `fetcher` rejection, the last error that was
-encountered is returned to you. If the `fetcher` always resolves but is `isCompleted` always returns
-`false`, a generic Error is returned with a "max retries reached" message. Rejections are ignored if
-subsequent fetcher calls succeed. The `poll` function never returns two non-null values at the same
-time!
+operations in your flow**. Otherwise, `poll` returns `null` data and an array of `error` explaining
+what went wrong. Particularly, the last `error` in the array will always be a generic `Error`
+indicating a "max retries reached" message. If there was at least one `fetcher` rejection, the
+original error(s) will be included on the errors array, in order of occurrence, before the generic
+error. Rejections from `fetcher` and `isReady` "failures" are ignored if at least one fetcher
+calls succeeds. The `poll` function never returns two non-null values at the same time!
+
+_Note: `poll` accepts optional `log`/`error` functions for verbose debugging in your Appwrite console._
 
 #### Migrations in General
 
