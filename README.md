@@ -313,8 +313,10 @@ await dbService.createDocument(
 
 // ✅ Better code - Document creation unlikely to fail. You give time for Appwrite to work on your request (if needed).
 const [_, e] = await poll({
-  fetcher: () => db.getCollection('[DATABASE_ID]', '[COLLECTION_ID]'),
-  isReady: ({ attributes }) => attributes.some(({ key }) => key === 'bar'),
+  fetcher: () =>
+    db.getCollection('[DATABASE_ID]', '[COLLECTION_ID]'),
+  isReady: ({ attributes }) =>
+    attributes.some(({ key, status }) => key === 'bar' && status === 'available'),
 });
 
 if (e) {
