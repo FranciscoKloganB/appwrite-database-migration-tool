@@ -183,6 +183,8 @@ export class MigrationService {
           name: migration.name,
         });
 
+        migration.setPersisted(true);
+
         this.#log(`Migration ${migration.name} new state was saved. Completed.`);
       } catch (insertError) {
         this.#error(`Migration ${migration.name} was applied but new state was not saved.`);
@@ -210,9 +212,7 @@ export class MigrationService {
       } catch (e) {
         this.#error(`Failed to undo last applied migration: ${migration.name}.`);
 
-        if (e instanceof Error) {
-          this.#error(e.message);
-        }
+        throw e;
       }
 
       try {

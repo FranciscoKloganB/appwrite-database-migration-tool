@@ -1,4 +1,5 @@
 import { createMock } from '@golevelup/ts-jest';
+import { describe } from 'node:test';
 
 import {
   IMigrationFileEntity,
@@ -339,37 +340,175 @@ describe('MigrationService', () => {
 
         expect(result).toBeInstanceOf(Array);
         expect(result).toHaveLength(1);
-        expect(result[0].$id).toEqual(firstRemoteEntity.$id);
+        expect(result[0].name).toEqual(firstRemoteEntity.name);
       });
 
-      it('undoLastMigration', async () => {
-        const { migrationService } = await setup();
+      describe('pending migration execution', () => {
+        it('should apply all pending migrations', async () => {
+          const { migrationService } = await setup();
 
-        const databaseService = createMock<DatabaseService>();
-        const migrationUnapplySpy = jest.spyOn(Migration.prototype, 'unapply');
+          const databaseService = createMock<DatabaseService>();
+          const migrationApplySpy = jest.spyOn(Migration.prototype, 'apply');
 
-        expect(migrationService.appliedMigrations).toHaveLength(1);
-        expect(migrationService.pendingMigrations).toHaveLength(2);
+          expect(migrationService.appliedMigrations).toHaveLength(1);
+          expect(migrationService.pendingMigrations).toHaveLength(2);
 
-        await migrationService.undoLastMigration(databaseService);
+          await migrationService.executePendingMigrations(databaseService);
 
-        expect(migrationService.pendingMigrations).toHaveLength(2);
-        expect(migrationUnapplySpy).toHaveBeenCalledTimes(1);
+          expect(migrationService.appliedMigrations).toHaveLength(3);
+          expect(migrationService.pendingMigrations).toHaveLength(0);
+
+          expect(migrationApplySpy).toHaveBeenCalledTimes(2);
+        });
+
+        it('should persist newly applied migrations', async () => {
+          const { migrationService } = await setup();
+
+          const databaseService = createMock<DatabaseService>();
+
+          await migrationService.executePendingMigrations(databaseService);
+
+          expect(remoteMigrationRepository.insertMigration).toHaveBeenCalledTimes(2);
+          expect(migrationService.appliedMigrations.every((m) => m.persisted)).toBe(true);
+        });
+
+        it('should throw an when a migration fails to apply', async () => {
+          const error = new Error('failed to apply');
+          const { migrationService } = await setup();
+
+          const migrationApplySpy = jest.spyOn(Migration.prototype, 'apply');
+          migrationApplySpy.mockRejectedValueOnce(error);
+
+          const databaseService = createMock<DatabaseService>();
+
+          await expect(async () =>
+            migrationService.executePendingMigrations(databaseService),
+          ).rejects.toThrow(error);
+        });
+
+        it('should throw an error when a migration is applied but state could not be persisted', async () => {
+          const error = new Error('failed to persist');
+          const { migrationService } = await setup();
+
+          remoteMigrationRepository.insertMigration.mockRejectedValueOnce(error);
+
+          const databaseService = createMock<DatabaseService>();
+
+          await expect(async () =>
+            migrationService.executePendingMigrations(databaseService),
+          ).rejects.toThrow(error);
+        });
+
+        it('should not apply subsequent migration files when the current migration fails to apply', async () => {
+          const error = new Error('failed to apply');
+          const { migrationService } = await setup();
+
+          const migrationApplySpy = jest.spyOn(Migration.prototype, 'apply');
+          migrationApplySpy.mockRejectedValueOnce(error);
+
+          const databaseService = createMock<DatabaseService>();
+
+          try {
+            await migrationService.executePendingMigrations(databaseService);
+          } catch (e) {
+            // pass
+          }
+
+          expect(migrationApplySpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not apply subsequent migration files when the current migration fails to persist', async () => {
+          const error = new Error('failed to persist');
+          const { migrationService } = await setup();
+
+          const migrationApplySpy = jest.spyOn(Migration.prototype, 'apply');
+
+          remoteMigrationRepository.insertMigration.mockRejectedValueOnce(error);
+
+          const databaseService = createMock<DatabaseService>();
+
+          try {
+            await migrationService.executePendingMigrations(databaseService);
+          } catch (e) {
+            // pass
+          }
+
+          expect(migrationApplySpy).toHaveBeenCalledTimes(1);
+        });
       });
 
-      it('executePendingMigrations', async () => {
-        const { migrationService } = await setup();
+      describe('undoing last migration', () => {
+        it('it should only undo one migration', async () => {
+          const firstLocalEntity = LocalMigrationEntity.create({
+            instance: createMock<IMigrationFileEntity>(),
+            name: fmn,
+            timestamp: fts,
+          });
 
-        const databaseService = createMock<DatabaseService>();
-        const migrationApplySpy = jest.spyOn(Migration.prototype, 'apply');
+          const firstRemoteEntity = RemoteMigrationEntity.create({
+            id: createId(),
+            applied: true,
+            name: fmn,
+            timestamp: fts,
+          });
 
-        expect(migrationService.appliedMigrations).toHaveLength(1);
-        expect(migrationService.pendingMigrations).toHaveLength(1);
+          const secondLocalEntity = LocalMigrationEntity.create({
+            instance: createMock<IMigrationFileEntity>(),
+            name: smn,
+            timestamp: sts,
+          });
 
-        await migrationService.executePendingMigrations(databaseService);
+          const secondRemoteEntity = RemoteMigrationEntity.create({
+            id: createId(),
+            applied: true,
+            name: smn,
+            timestamp: sts,
+          });
 
-        expect(migrationService.appliedMigrations).toHaveLength(3);
-        expect(migrationApplySpy).toHaveBeenCalledTimes(2);
+          const { migrationService } = await setup({
+            localMigrationEntities: [firstLocalEntity, secondLocalEntity],
+            remoteMigrationEntities: [firstRemoteEntity, secondRemoteEntity],
+          });
+
+          const databaseService = createMock<DatabaseService>();
+          const migrationUnapplySpy = jest.spyOn(Migration.prototype, 'unapply');
+
+          expect(migrationService.appliedMigrations).toHaveLength(2);
+          expect(migrationService.pendingMigrations).toHaveLength(0);
+
+          await migrationService.undoLastMigration(databaseService);
+
+          expect(migrationService.pendingMigrations).toHaveLength(1);
+          expect(migrationService.appliedMigrations).toHaveLength(1);
+          expect(migrationUnapplySpy).toHaveBeenCalledTimes(1);
+        });
+
+        it('should throw an when a migration fails to undo', async () => {
+          const error = new Error('failed to unapply');
+          const { migrationService } = await setup();
+
+          const migrationUnapplySpy = jest.spyOn(Migration.prototype, 'unapply');
+          migrationUnapplySpy.mockRejectedValueOnce(error);
+
+          const databaseService = createMock<DatabaseService>();
+
+          await expect(async () =>
+            migrationService.undoLastMigration(databaseService),
+          ).rejects.toThrow(error);
+        });
+
+        it('should throw an error when a migration is unapplied but state could not be updated', async () => {
+          const error = new Error('failed to persist');
+          const { migrationService } = await setup();
+
+          remoteMigrationRepository.updateMigration.mockRejectedValueOnce(error);
+
+          const databaseService = createMock<DatabaseService>();
+
+          await expect(async () =>
+            migrationService.undoLastMigration(databaseService),
+          ).rejects.toThrow(error);
+        });
       });
     });
   });
