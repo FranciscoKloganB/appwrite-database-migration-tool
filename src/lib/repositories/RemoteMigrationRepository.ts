@@ -5,7 +5,11 @@ import type { Logger } from '@lib/types';
 import { isRecord } from '@lib/utils';
 
 import { RemoteMigrationEntity } from './entities';
-import type { IMigrationRepository } from './interfaces';
+import type {
+  CreateMigrationEntity,
+  IMigrationRepository,
+  UpdateMigrationEntity,
+} from './interfaces';
 
 type MigrationRemoteRepositoryProps = {
   databaseId: string;
@@ -57,7 +61,7 @@ export class RemoteMigrationRepository implements IMigrationRepository {
   public async deleteMigration(migration: { $id: string }): Promise<boolean> {
     if (!migration.$id) {
       throw new TypeError(
-        'Can not delete migration. Expected entity to have property `id` of type string',
+        'Can not delete migration. Expected entity to have property `id` of type string.',
       );
     }
 
@@ -66,12 +70,7 @@ export class RemoteMigrationRepository implements IMigrationRepository {
     return true;
   }
 
-  public async insertMigration(migration: {
-    $id: string;
-    applied: boolean;
-    timestamp: number;
-    name: string;
-  }): Promise<RemoteMigrationEntity> {
+  public async insertMigration(migration: CreateMigrationEntity): Promise<RemoteMigrationEntity> {
     const document = await this.#databaseService.createDocument(
       this.#databaseId,
       this.#collectionId,
@@ -114,6 +113,31 @@ export class RemoteMigrationRepository implements IMigrationRepository {
     this.#log(`Remote entities retrieved: ${JSON.stringify(entities.map((x) => x.name))}`);
 
     return entities;
+  }
+
+  public async updateMigration(migration: UpdateMigrationEntity): Promise<RemoteMigrationEntity> {
+    const { $id, applied } = migration;
+
+    if (!$id) {
+      throw new TypeError(
+        'Can not delete migration. Expected entity to have property `id` of type string.',
+      );
+    }
+
+    const document = await this.#databaseService.updateDocument(
+      this.#databaseId,
+      this.#collectionId,
+      migration.$id,
+      { applied },
+    );
+
+    if (this.isMigrationEntity(document)) {
+      return RemoteMigrationEntity.create({ ...document, id: document.$id });
+    }
+
+    throw new Error(
+      'Migration update resulted in malformed Migration document. This should not be possible.',
+    );
   }
 
   /* -------------------------------------------------------------------------- */

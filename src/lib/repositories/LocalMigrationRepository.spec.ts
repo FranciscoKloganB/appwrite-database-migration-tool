@@ -80,4 +80,17 @@ describe('LocalMigrationRepository', () => {
       expect(result).toHaveLength(0);
     });
   });
+
+  describe('updateMigration', () => {
+    it('should throw an error indicating that the method is not implemented', async () => {
+      const repository = LocalMigrationRepository.create({
+        error: errorLogger,
+        log: infoLogger,
+      });
+
+      expect(async () => await repository.updateMigration(entity as any)).rejects.toThrow(
+        'Method not implemented.',
+      );
+    });
+  });
 });

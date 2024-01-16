@@ -2,19 +2,21 @@ import { DatabaseService } from '@lib/domain';
 
 import { Logger } from '../../../index-lib';
 
+export interface IMigrationEntityValue {
+  $id?: string | undefined;
+  applied: boolean;
+  instance?: IMigrationFileEntity | undefined;
+  name: string;
+  timestamp: number;
+}
+
 export interface IMigrationEntity {
   $id?: string;
   applied?: boolean;
   instance?: IMigrationFileEntity;
   name: string;
   timestamp: number;
-  value: {
-    $id?: string | undefined;
-    applied: boolean;
-    instance?: IMigrationFileEntity | undefined;
-    name: string;
-    timestamp: number;
-  };
+  value: IMigrationEntityValue;
   apply: () => void;
   unapply: () => void;
 }
@@ -32,15 +34,21 @@ export interface IMigrationFileEntity {
   down(params: IMigrationCommandParams): Promise<void>;
 }
 
-export interface IMigrationRepository {
-  deleteMigration(m: { $id: string }): Promise<boolean>;
+export type CreateMigrationEntity = Required<Omit<IMigrationEntityValue, 'instance'>>;
 
-  insertMigration(m: {
-    $id: string;
-    applied: boolean;
-    timestamp: number;
-    name: string;
-  }): Promise<IMigrationEntity>;
+export type DeleteMigrationEntity = Pick<Required<Omit<IMigrationEntityValue, 'instance'>>, '$id'>;
+
+export type UpdateMigrationEntity = Pick<
+  Required<Omit<IMigrationEntityValue, 'instance'>>,
+  '$id' | 'applied'
+>;
+
+export interface IMigrationRepository {
+  deleteMigration(m: DeleteMigrationEntity): Promise<boolean>;
+
+  insertMigration(m: CreateMigrationEntity): Promise<IMigrationEntity>;
 
   listMigrations(): Promise<IMigrationEntity[]>;
+
+  updateMigration(m: UpdateMigrationEntity): Promise<IMigrationEntity>;
 }

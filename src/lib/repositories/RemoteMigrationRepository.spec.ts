@@ -57,7 +57,7 @@ describe('RemoteMigrationRepository', () => {
       });
 
       await expect(async () => await testSubject.deleteMigration(entity)).rejects.toThrow(
-        'Can not delete migration. Expected entity to have property `id` of type string',
+        'Can not delete migration. Expected entity to have property `id` of type string.',
       );
     });
   });
@@ -150,6 +150,78 @@ describe('RemoteMigrationRepository', () => {
 
       await expect(async () => await testSubject.listMigrations()).rejects.toThrow(
         'Unexpected document shape found in migration document document_id_1',
+      );
+    });
+  });
+
+  describe('updateMigration', () => {
+    it('should update a migration document', async () => {
+      const id = createId();
+      const applied = false;
+      const name = 'SomeMigrationName';
+      const timestamp = Date.now();
+
+      const entity = RemoteMigrationEntity.create({
+        id,
+        applied,
+        name,
+        timestamp,
+      });
+
+      databaseService.updateDocument.mockResolvedValueOnce(entity.value as any);
+
+      const result = await testSubject.updateMigration({
+        $id: id,
+        applied,
+      });
+
+      expect(databaseService.updateDocument).toHaveBeenCalledTimes(1);
+      expect(databaseService.updateDocument).toHaveBeenCalledWith(
+        databaseId,
+        collectionId,
+        entity.$id,
+        {
+          applied: entity.applied,
+        },
+      );
+
+      expect(result).toBeInstanceOf(RemoteMigrationEntity);
+      expect(result.$id).toEqual(entity.$id);
+      expect(result.applied).toEqual(applied);
+    });
+
+    it('should throw an error if migration entity is malformed after update', async () => {
+      const entity = RemoteMigrationEntity.create({
+        id: createId(),
+        applied: true,
+        name: 'SomeMigrationName',
+        timestamp: Date.now(),
+      });
+
+      databaseService.updateDocument.mockResolvedValueOnce({} as any);
+
+      await expect(
+        async () =>
+          await testSubject.updateMigration({
+            $id: entity.$id,
+            applied: false,
+          }),
+      ).rejects.toThrow(
+        'Migration update resulted in malformed Migration document. This should not be possible.',
+      );
+    });
+
+    it('should throw a TypeError if migration entity has no $id during update', async () => {
+      const applied = false;
+
+      await expect(
+        async () =>
+          await testSubject.updateMigration({
+            $id: undefined as any,
+            applied,
+          }),
+      ).rejects.toThrow(
+        'Can not delete migration. Expected entity to have property `id` of type string.',
       );
     });
   });
