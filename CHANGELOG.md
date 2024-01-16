@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.9.5](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.9.4...v0.9.5) (2024-01-16)
+
+
+### Bug Fixes
+
+* **MigrationService:** invokes updateMigration after unapply, must update test cases ([eafc38a](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/eafc38a9dec2568771489aeca4da8c9e5c5725cb))
+* **MigrationService:** update tests ([d0f1e8a](https://github.com/franciscokloganb/appwrite-database-migration-tool/commit/d0f1e8aa5a295a4d431a67c4a02e7d0fc371cef4))
+
 ### [0.9.4](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.9.3...v0.9.4) (2024-01-16)
 
 ### [0.9.3](https://github.com/franciscokloganb/appwrite-database-migration-tool/compare/v0.9.2...v0.9.3) (2024-01-16)
