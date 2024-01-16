@@ -164,6 +164,8 @@ describe('MigrationService', () => {
 
         expect(result).toBe(migrationService);
       });
+
+      it.todo('should prevent duplicate local entities');
     });
 
     describe('withRemoteEntities', () => {
@@ -214,6 +216,8 @@ describe('MigrationService', () => {
 
         expect(result).toBe(migrationService);
       });
+
+      it.todo('should prevent duplicate remote entities');
     });
 
     describe('migrations', () => {
@@ -435,6 +439,10 @@ describe('MigrationService', () => {
 
           expect(migrationApplySpy).toHaveBeenCalledTimes(1);
         });
+
+        it.todo(
+          'should update remote migration instead of creating a new state when applied migration was already persisted',
+        );
       });
 
       describe('undoing last migration', () => {
