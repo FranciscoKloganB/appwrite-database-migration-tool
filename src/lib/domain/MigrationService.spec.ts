@@ -20,36 +20,44 @@ describe('MigrationService', () => {
   const localMigrationRepository = createMock<LocalMigrationRepository>();
   const remoteMigrationRepository = createMock<RemoteMigrationRepository>();
 
-  const ats = 1705148650;
-  const amn = `Migration_${ats}_AppliedRemote`;
-  const pts = 1705148849;
-  const pmn = `Migration_${pts}_PendingRemote`;
+  const fts = 1705148650;
+  const fmn = `Migration_${fts}_AppliedRemote`;
+  const sts = 1705148849;
+  const smn = `Migration_${sts}_PendingRemote`;
+  const tts = 1805148555;
+  const tmn = `Migration_${tts}_PendingLocalOnly`;
 
   function createDependencies() {
     const firstLocalEntity = LocalMigrationEntity.create({
       instance: createMock<IMigrationFileEntity>(),
-      name: amn,
-      timestamp: ats,
+      name: fmn,
+      timestamp: fts,
     });
 
     const firstRemoteEntity = RemoteMigrationEntity.create({
       id: createId(),
       applied: true,
-      name: amn,
-      timestamp: ats,
+      name: fmn,
+      timestamp: fts,
     });
 
     const secondLocalEntity = LocalMigrationEntity.create({
       instance: createMock<IMigrationFileEntity>(),
-      name: pmn,
-      timestamp: pts,
+      name: smn,
+      timestamp: sts,
     });
 
     const secondRemoteEntity = RemoteMigrationEntity.create({
       id: createId(),
       applied: false,
-      name: pmn,
-      timestamp: pts,
+      name: smn,
+      timestamp: sts,
+    });
+
+    const thirdLocalEntity = LocalMigrationEntity.create({
+      instance: createMock<IMigrationFileEntity>(),
+      name: tmn,
+      timestamp: tts,
     });
 
     return {
@@ -57,6 +65,7 @@ describe('MigrationService', () => {
       firstLocalEntity,
       secondLocalEntity,
       secondRemoteEntity,
+      thirdLocalEntity,
     };
   }
 
@@ -223,7 +232,11 @@ describe('MigrationService', () => {
         );
 
         localMigrationRepository.listMigrations.mockResolvedValue(
-          localMigrationEntities ?? [entities.secondLocalEntity, entities.firstLocalEntity],
+          localMigrationEntities ?? [
+            entities.secondLocalEntity,
+            entities.firstLocalEntity,
+            entities.thirdLocalEntity,
+          ],
         );
 
         await migrationService.withLocalEntities();
@@ -232,6 +245,16 @@ describe('MigrationService', () => {
 
         return { ...entities, migrationService };
       }
+
+      it('should mark migrations as being "persisted" according to whether they are found remotely during service setup', async () => {
+        const { migrationService } = await setup();
+
+        const [first, second, third] = migrationService.migrations;
+
+        expect(first.persisted).toBe(true);
+        expect(second.persisted).toBe(true);
+        expect(third.persisted).toBe(false);
+      });
 
       it('should return the migration service instance allowing method chaining', async () => {
         const migrationService = createSubject();
@@ -286,10 +309,10 @@ describe('MigrationService', () => {
       });
 
       it('should be possible to retrieve the latest migration', async () => {
-        const { migrationService, secondRemoteEntity } = await setup();
+        const { migrationService, thirdLocalEntity } = await setup();
 
         expect(migrationService.latestMigration).toBeDefined();
-        expect(migrationService.latestMigration?.$id).toEqual(secondRemoteEntity.$id);
+        expect(migrationService.latestMigration?.name).toEqual(thirdLocalEntity.name);
       });
 
       it('should undefined when retrieving the latest migration and migrations are not loaded', async () => {
@@ -299,13 +322,14 @@ describe('MigrationService', () => {
       });
 
       it('should be possible to retrieve pending migrations', async () => {
-        const { migrationService, secondRemoteEntity } = await setup();
+        const { migrationService, secondRemoteEntity, thirdLocalEntity } = await setup();
 
         const result = migrationService.pendingMigrations;
 
         expect(result).toBeInstanceOf(Array);
-        expect(result).toHaveLength(1);
-        expect(result[0].$id).toEqual(secondRemoteEntity.$id);
+        expect(result).toHaveLength(2);
+        expect(result[0].name).toEqual(secondRemoteEntity.name);
+        expect(result[1].name).toEqual(thirdLocalEntity.name);
       });
 
       it('should be possible to retrieve applied migrations', async () => {
@@ -325,7 +349,7 @@ describe('MigrationService', () => {
         const migrationUnapplySpy = jest.spyOn(Migration.prototype, 'unapply');
 
         expect(migrationService.appliedMigrations).toHaveLength(1);
-        expect(migrationService.pendingMigrations).toHaveLength(1);
+        expect(migrationService.pendingMigrations).toHaveLength(2);
 
         await migrationService.undoLastMigration(databaseService);
 
@@ -344,8 +368,8 @@ describe('MigrationService', () => {
 
         await migrationService.executePendingMigrations(databaseService);
 
-        expect(migrationService.appliedMigrations).toHaveLength(2);
-        expect(migrationApplySpy).toHaveBeenCalledTimes(1);
+        expect(migrationService.appliedMigrations).toHaveLength(3);
+        expect(migrationApplySpy).toHaveBeenCalledTimes(2);
       });
     });
   });

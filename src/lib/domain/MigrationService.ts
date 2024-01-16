@@ -107,6 +107,7 @@ export class MigrationService {
         id: remote?.$id || createId(),
         instance: local.instance,
         name: local.name,
+        persisted: !!remote,
         timestamp: local.timestamp,
       });
     });

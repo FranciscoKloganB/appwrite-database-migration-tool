@@ -18,6 +18,7 @@ describe('Migration', () => {
     id: createId(),
     instance: mockInstance,
     name: 'MockMigration',
+    persisted: false,
     timestamp: Date.now(),
   };
 
@@ -53,6 +54,31 @@ describe('Migration', () => {
         applied: baseProps.applied,
         name: baseProps.name,
         timestamp: baseProps.timestamp,
+      });
+    });
+  });
+
+  describe('persisted', () => {
+    it('should return false for when persisted is false', () => {
+      const migration = Migration.create({ ...baseProps, persisted: false });
+      expect(migration.persisted).toBe(false);
+    });
+
+    it('should return true for when persisted is true', () => {
+      const migration = Migration.create({ ...baseProps, persisted: true });
+      expect(migration.persisted).toBe(true);
+    });
+
+    describe('setPersisted', () => {
+      it('should be possible to change the value of the persisted property', () => {
+        const migration = Migration.create({ ...baseProps });
+        expect(migration.persisted).toBe(false);
+
+        migration.setPersisted(true);
+        expect(migration.persisted).toBe(true);
+
+        migration.setPersisted(false);
+        expect(migration.persisted).toBe(false);
       });
     });
   });

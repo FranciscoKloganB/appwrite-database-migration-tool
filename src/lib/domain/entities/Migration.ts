@@ -5,6 +5,7 @@ export type MigrationProps = {
   id: string;
   instance: IMigrationFileEntity;
   name: string;
+  persisted: boolean;
   timestamp: number;
 };
 
@@ -19,23 +20,34 @@ export class Migration {
   #name: string;
   /** The timestamp in which the migration was applied if it was applied, it probably does not match class name timestamp */
   #timestamp: number;
+  /** Indicates wether or not this migration exists as a remote entity */
+  #persisted: boolean;
 
   public constructor(
     applied: boolean,
     id: string,
     instance: IMigrationFileEntity,
     name: string,
+    persisted: boolean,
     timestamp: number,
   ) {
     this.#applied = applied;
     this.#id = id;
     this.#instance = instance;
     this.#name = name;
+    this.#persisted = persisted;
     this.#timestamp = timestamp;
   }
 
   static create(props: MigrationProps) {
-    return new Migration(props.applied, props.id, props.instance, props.name, props.timestamp);
+    return new Migration(
+      props.applied,
+      props.id,
+      props.instance,
+      props.name,
+      props.persisted,
+      props.timestamp,
+    );
   }
 
   public get $id() {
@@ -52,6 +64,10 @@ export class Migration {
 
   public get name() {
     return this.#name;
+  }
+
+  get persisted() {
+    return this.#persisted;
   }
 
   public get timestamp() {
@@ -73,6 +89,10 @@ export class Migration {
 
   public isPending() {
     return !this.#applied;
+  }
+
+  public setPersisted(value: boolean) {
+    this.#persisted = value;
   }
 
   public async apply(params: IMigrationCommandParams) {
