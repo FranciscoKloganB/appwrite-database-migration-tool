@@ -214,6 +214,18 @@ export class MigrationService {
         }
       }
 
+      try {
+        this.#log(`Migration ${migration.name} new state will be saved to Appwrite.`);
+
+        await this.#remoteMigrationRepository.updateMigration(migration);
+
+        this.#log(`Migration ${migration.name} new state was saved. Completed.`);
+      } catch (insertError) {
+        this.#error(`Migration ${migration.name} was unapplied but new state was not saved.`);
+
+        throw insertError;
+      }
+
       this.#log(`Migration 'down' method completed. The ${migration.name} is no longer applied.`);
 
       return;
