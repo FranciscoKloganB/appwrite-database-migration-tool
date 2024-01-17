@@ -6,56 +6,6 @@ environments easier and more predictable.
 _**We strongly recommend reading through the entire README, paying close attention to
 [Setting-up](#setting-up) and [Recommendations](#recommendations) sections!**_
 
-## Roadmap to v2.0.0
-
-### Improved fault tolerance (pseudo-transactional behaviour)
-
-Currently, the `MigrationRunSequence` may fail while applying a user defined migration file.
-If the migration fails, the steps that were taken during that particular migration file, are not
-rolled back. Running the down method is an "OK" approach, but far from ideal, particularly on
-bigger migrations which involve modifying collection data rather than just creating/deleting fields.
-
-#### Possible Solution
-
-Implement a superset of commands around `DatabaseService` using a `Memento` pattern to try to mimic
-Transactions as much as possible. The solution involves `retries` with exponential backoff and would
-require some interesting API changes. This means that `ADMT` would no longer just expose Appwrite
-SDK `Databases` functionality, but would also have an API of commands that would intelligently
-know how to rollback themselves if all retries were expended and a given step failed.
-
-Something like the pseudo-code below:
-
-```ts
-class SomeMigration {
-  async up({ db, error, log, sequence }) {
-    await sequence
-      .addStep({
-        action: 'create',
-        type: 'document',
-        args: {
-          ...argsToPassToDatabasesCreateDocumentMethod
-        }
-      }).addStep({
-        action: 'update',
-        type: 'document',
-        args: {
-          ...argsToPassToDatabasesCreateDocumentMethod
-        },
-        onError: async ({ db }) => {
-          await db.executeCustomRollbackActionForThisStep()
-        }
-      })
-
-    // For each command that is successfully executed in the sequence queue
-    // Push a record to an executed stack
-    // If some command N + x, x > 0 fails
-    // Pop from the executed stack and execute reverse of action
-    //   e.g.: delete document when action was create document
-    await sequence.build().run()
-  }
-}
-```
-
 ## Setting Up
 
 ### Common/Shared Steps
@@ -399,3 +349,53 @@ creating a new migration file to patch the issue.
    > (collections.read)", it's because you need to add more scopes to your APPWRITE_API_KEY.
    > You can do that by accessing `Project > Settings > API credentials > View API Keys > { Select
    > API KEY } > Scopes`; From here onwards, you need to add the scopes that are missing.
+
+## Roadmap to v2.0.0
+
+### Improved fault tolerance (pseudo-transactional behaviour)
+
+Currently, the `MigrationRunSequence` may fail while applying a user defined migration file.
+If the migration fails, the steps that were taken during that particular migration file, are not
+rolled back. Running the down method is an "OK" approach, but far from ideal, particularly on
+bigger migrations which involve modifying collection data rather than just creating/deleting fields.
+
+#### Possible Solution
+
+Implement a superset of commands around `DatabaseService` using a `Memento` pattern to try to mimic
+Transactions as much as possible. The solution involves `retries` with exponential backoff and would
+require some interesting API changes. This means that `ADMT` would no longer just expose Appwrite
+SDK `Databases` functionality, but would also have an API of commands that would intelligently
+know how to rollback themselves if all retries were expended and a given step failed.
+
+Something like the pseudo-code below:
+
+```ts
+class SomeMigration {
+  async up({ db, error, log, sequence }) {
+    await sequence
+      .addStep({
+        action: 'create',
+        type: 'document',
+        args: {
+          ...argsToPassToDatabasesCreateDocumentMethod
+        }
+      }).addStep({
+        action: 'update',
+        type: 'document',
+        args: {
+          ...argsToPassToDatabasesCreateDocumentMethod
+        },
+        onError: async ({ db }) => {
+          await db.executeCustomRollbackActionForThisStep()
+        }
+      })
+
+    // For each command that is successfully executed in the sequence queue
+    // Push a record to an executed stack
+    // If some command N + x, x > 0 fails
+    // Pop from the executed stack and execute reverse of action
+    //   e.g.: delete document when action was create document
+    await sequence.build().run()
+  }
+}
+```
