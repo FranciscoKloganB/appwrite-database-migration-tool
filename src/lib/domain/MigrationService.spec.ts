@@ -12,6 +12,7 @@ import { createId } from '@lib/utils';
 
 import { DatabaseService } from './DatabaseService';
 import { Migration } from './entities/Migration';
+import { DuplicateMigrationError } from './errors/DuplicateMigrationError';
 import { MigrationService } from './MigrationService';
 
 describe('MigrationService', () => {
@@ -165,7 +166,19 @@ describe('MigrationService', () => {
         expect(result).toBe(migrationService);
       });
 
-      it.todo('should prevent duplicate local entities');
+      it('should prevent duplicate local entities', async () => {
+        const migrationService = createSubject();
+        const { firstLocalEntity } = createDependencies();
+
+        localMigrationRepository.listMigrations.mockResolvedValue([
+          firstLocalEntity,
+          firstLocalEntity,
+        ]);
+
+        await expect(async () => migrationService.withLocalEntities()).rejects.toThrow(
+          DuplicateMigrationError,
+        );
+      });
     });
 
     describe('withRemoteEntities', () => {
@@ -217,7 +230,19 @@ describe('MigrationService', () => {
         expect(result).toBe(migrationService);
       });
 
-      it.todo('should prevent duplicate remote entities');
+      it('should prevent duplicate remote entities', async () => {
+        const migrationService = createSubject();
+        const { firstRemoteEntity } = createDependencies();
+
+        remoteMigrationRepository.listMigrations.mockResolvedValue([
+          firstRemoteEntity,
+          firstRemoteEntity,
+        ]);
+
+        await expect(async () => migrationService.withLocalEntities()).rejects.toThrow(
+          DuplicateMigrationError,
+        );
+      });
     });
 
     describe('migrations', () => {
@@ -365,14 +390,65 @@ describe('MigrationService', () => {
           expect(migrationApplySpy).toHaveBeenCalledTimes(2);
         });
 
-        it('should persist newly applied migrations', async () => {
+        it('should update the remote migration when it is applied when it it already exists remotely', async () => {
+          const localEnt = LocalMigrationEntity.create({
+            instance: createMock<IMigrationFileEntity>(),
+            name: smn,
+            timestamp: sts,
+          });
+
+          const remoteEnt = RemoteMigrationEntity.create({
+            id: createId(),
+            applied: false,
+            name: smn,
+            timestamp: sts,
+          });
+
+          const { migrationService } = await setup({
+            localMigrationEntities: [localEnt],
+            remoteMigrationEntities: [remoteEnt],
+          });
+
+          const databaseService = createMock<DatabaseService>();
+
+          await migrationService.executePendingMigrations(databaseService);
+
+          expect(remoteMigrationRepository.insertMigration).toHaveBeenCalledTimes(0);
+          expect(remoteMigrationRepository.updateMigration).toHaveBeenCalledTimes(1);
+        });
+
+        it('should write a remote migration when it is applied when it it already exists remotely', async () => {
+          const entity = LocalMigrationEntity.create({
+            instance: createMock<IMigrationFileEntity>(),
+            name: tmn,
+            timestamp: tts,
+          });
+
+          const databaseService = createMock<DatabaseService>();
+
+          const { migrationService } = await setup({
+            localMigrationEntities: [entity],
+            remoteMigrationEntities: [],
+          });
+
+          await migrationService.executePendingMigrations(databaseService);
+
+          expect(remoteMigrationRepository.insertMigration).toHaveBeenCalledTimes(1);
+          expect(remoteMigrationRepository.updateMigration).toHaveBeenCalledTimes(0);
+        });
+
+        it('should save applied migrations state to remote repository', async () => {
           const { migrationService } = await setup();
 
           const databaseService = createMock<DatabaseService>();
 
           await migrationService.executePendingMigrations(databaseService);
 
-          expect(remoteMigrationRepository.insertMigration).toHaveBeenCalledTimes(2);
+          // Migration 2 already exists on remote, so we updated it
+          expect(remoteMigrationRepository.updateMigration).toHaveBeenCalledTimes(1);
+          // Migration 3 is new (only exists locally), so we write it
+          expect(remoteMigrationRepository.insertMigration).toHaveBeenCalledTimes(1);
+
           expect(migrationService.appliedMigrations.every((m) => m.persisted)).toBe(true);
         });
 
@@ -428,6 +504,7 @@ describe('MigrationService', () => {
           const migrationApplySpy = jest.spyOn(Migration.prototype, 'apply');
 
           remoteMigrationRepository.insertMigration.mockRejectedValueOnce(error);
+          remoteMigrationRepository.updateMigration.mockRejectedValueOnce(error);
 
           const databaseService = createMock<DatabaseService>();
 
@@ -439,10 +516,6 @@ describe('MigrationService', () => {
 
           expect(migrationApplySpy).toHaveBeenCalledTimes(1);
         });
-
-        it.todo(
-          'should update remote migration instead of creating a new state when applied migration was already persisted',
-        );
       });
 
       describe('undoing last migration', () => {

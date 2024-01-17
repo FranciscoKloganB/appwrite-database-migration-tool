@@ -221,7 +221,7 @@ describe('RemoteMigrationRepository', () => {
             applied,
           }),
       ).rejects.toThrow(
-        'Can not delete migration. Expected entity to have property `id` of type string.',
+        'Can not update migration. Expected entity to have property `id` of type string.',
       );
     });
   });

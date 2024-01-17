@@ -10,6 +10,7 @@ import {
   RemoteMigrationRepository,
 } from '../../index-lib';
 import { Migration } from './entities';
+import { DuplicateMigrationError } from './errors/DuplicateMigrationError';
 import { LocalMigrationVO, RemoteMigrationVO } from './interfaces';
 
 type MigrationServiceProps = {
@@ -176,12 +177,17 @@ export class MigrationService {
       try {
         this.#log(`Migration ${migration.name} new state will be saved to Appwrite.`);
 
-        await this.#remoteMigrationRepository.insertMigration({
-          $id: migration.$id,
-          applied: migration.applied,
-          timestamp: migration.timestamp,
-          name: migration.name,
-        });
+        migration.persisted
+          ? await this.#remoteMigrationRepository.updateMigration({
+              $id: migration.$id,
+              applied: true,
+            })
+          : await this.#remoteMigrationRepository.insertMigration({
+              $id: migration.$id,
+              applied: migration.applied,
+              timestamp: migration.timestamp,
+              name: migration.name,
+            });
 
         migration.setPersisted(true);
 
@@ -216,13 +222,16 @@ export class MigrationService {
       }
 
       try {
-        this.#log(`Migration ${migration.name} new state will be saved to Appwrite.`);
+        this.#log(`Migration ${migration.name} new state will be updated on Appwrite.`);
 
-        await this.#remoteMigrationRepository.updateMigration(migration);
+        await this.#remoteMigrationRepository.updateMigration({
+          $id: migration.$id,
+          applied: false,
+        });
 
-        this.#log(`Migration ${migration.name} new state was saved. Completed.`);
+        this.#log(`Migration ${migration.name} new state was updated. Completed.`);
       } catch (insertError) {
-        this.#error(`Migration ${migration.name} was unapplied but new state was not saved.`);
+        this.#error(`Migration ${migration.name} was unapplied but new state was not updated.`);
 
         throw insertError;
       }
@@ -272,9 +281,7 @@ export class MigrationService {
       return true;
     }
 
-    throw Error(
-      'Found duplicate migration files. There are at least two files with the same class name. We suggest using our codegen tools when you need to write new migration files.',
-    );
+    throw new DuplicateMigrationError();
   }
 
   /** Performs an inplace sort of the provided migration document entities by timestamp ASC */

@@ -120,7 +120,7 @@ export class RemoteMigrationRepository implements IMigrationRepository {
 
     if (!$id) {
       throw new TypeError(
-        'Can not delete migration. Expected entity to have property `id` of type string.',
+        'Can not update migration. Expected entity to have property `id` of type string.',
       );
     }
 
