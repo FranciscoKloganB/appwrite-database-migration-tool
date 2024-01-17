@@ -6,15 +6,6 @@ environments easier and more predictable.
 _**We strongly recommend reading through the entire README, paying close attention to
 [Setting-up](#setting-up) and [Recommendations](#recommendations) sections!**_
 
-## Roadmap to v1.0.0
-
-- [x] Follow the setup steps from a consumer perspective on a live project;
-- [x] Run codegen implementation from a consumer project;
-- [x] Run the MigrationsCreateCollection from a consumer project;
-- [x] Run the MigrationsRunSequence from a consumer project;
-- [x] Run the one down sequence flow against live Appwrite databases from consuming project;
-- [ ] Add integration tests with mocked Appwrite responses using MSW;
-
 ## Roadmap to v2.0.0
 
 ### Improved fault tolerance (pseudo-transactional behaviour)
