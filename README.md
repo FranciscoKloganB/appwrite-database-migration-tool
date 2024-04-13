@@ -244,7 +244,7 @@ operations in short time spans:
 ```js
 await db.createStringAttribute('[DATABASE_ID]', '[COLLECTION_ID]', 'bar', 32, true)
 
-// ❌ Bad code - Document creation likely to fail. Your request for attribute creation may still be queued.
+// ❌ Bad code - Document creation may fail because your request for attribute creation may still be on Appwrite queues.
 await dbService.createDocument(
   '[DATABASE_ID]',
   '[COLLECTION_ID]',
