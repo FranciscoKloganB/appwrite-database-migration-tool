@@ -11,7 +11,7 @@
   "editor.quickSuggestions": {
     "strings": true
   },
-  "editor.rulers": [100],
+  "editor.rulers": [88],
   "editor.tabSize": 2,
   "files.associations": {
     ".env.*": "properties"
