@@ -18,10 +18,6 @@ export function newMigration({
 import { MigrationFileEntity } from '@franciscokloganb/appwrite-database-migration-tool';
 
 class ${className} extends MigrationFileEntity {
-  constructor() {
-    super();
-  }
-
   /**
    * @param {import('@franciscokloganb/appwrite-database-migration-tool').IMigrationCommandParams} params
    */
