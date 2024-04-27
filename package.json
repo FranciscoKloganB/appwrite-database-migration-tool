@@ -51,7 +51,7 @@
   ],
   "devDependencies": {
     "@biomejs/biome": "^1.7.1",
-    "@commitlint/cli": "^18.4.3",
+    "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^18.4.3",
     "@faker-js/faker": "^8.3.1",
     "@golevelup/ts-jest": "^0.4.0",
