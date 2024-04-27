@@ -1,27 +1,27 @@
-import type { IMigrationCommandParams, IMigrationFileEntity } from '@lib/repositories';
+import type { IMigrationCommandParams, IMigrationFileEntity } from '@lib/repositories'
 
 export type MigrationProps = {
-  applied: boolean;
-  id: string;
-  instance: IMigrationFileEntity;
-  name: string;
-  persisted: boolean;
-  timestamp: number;
-};
+  applied: boolean
+  id: string
+  instance: IMigrationFileEntity
+  name: string
+  persisted: boolean
+  timestamp: number
+}
 
 export class Migration {
   /** The wether the migration has been applied (executed vs. pending, stored as a document vs. local file only) */
-  #applied: boolean;
+  #applied: boolean
   /** An appwrite document ID */
-  #id: string;
+  #id: string
   /** An instance of the migration file that matches this entity */
-  #instance: IMigrationFileEntity;
+  #instance: IMigrationFileEntity
   /** The name of the migration (class name) which is also the name in the appwrite document */
-  #name: string;
+  #name: string
   /** The timestamp in which the migration was applied if it was applied, it probably does not match class name timestamp */
-  #timestamp: number;
+  #timestamp: number
   /** Indicates wether or not this migration exists as a remote entity */
-  #persisted: boolean;
+  #persisted: boolean
 
   public constructor(
     applied: boolean,
@@ -31,12 +31,12 @@ export class Migration {
     persisted: boolean,
     timestamp: number,
   ) {
-    this.#applied = applied;
-    this.#id = id;
-    this.#instance = instance;
-    this.#name = name;
-    this.#persisted = persisted;
-    this.#timestamp = timestamp;
+    this.#applied = applied
+    this.#id = id
+    this.#instance = instance
+    this.#name = name
+    this.#persisted = persisted
+    this.#timestamp = timestamp
   }
 
   static create(props: MigrationProps) {
@@ -47,31 +47,31 @@ export class Migration {
       props.name,
       props.persisted,
       props.timestamp,
-    );
+    )
   }
 
   public get $id() {
-    return this.#id;
+    return this.#id
   }
 
   public get applied() {
-    return this.#applied;
+    return this.#applied
   }
 
   public get instance() {
-    return this.#instance;
+    return this.#instance
   }
 
   public get name() {
-    return this.#name;
+    return this.#name
   }
 
   get persisted() {
-    return this.#persisted;
+    return this.#persisted
   }
 
   public get timestamp() {
-    return this.#timestamp;
+    return this.#timestamp
   }
 
   public get value() {
@@ -80,42 +80,42 @@ export class Migration {
       applied: this.applied,
       name: this.name,
       timestamp: this.timestamp,
-    } as const;
+    } as const
   }
 
   public isExecuted() {
-    return this.#applied;
+    return this.#applied
   }
 
   public isPending() {
-    return !this.#applied;
+    return !this.#applied
   }
 
   public setPersisted(value: boolean) {
-    this.#persisted = value;
+    this.#persisted = value
   }
 
   public async apply(params: IMigrationCommandParams) {
     if (this.isPending()) {
-      await this.#instance.up(params);
+      await this.#instance.up(params)
 
-      this.setApplied(true);
+      this.setApplied(true)
     }
 
-    return this.value;
+    return this.value
   }
 
   public async unapply(params: IMigrationCommandParams) {
     if (this.isExecuted()) {
-      await this.#instance.down(params);
+      await this.#instance.down(params)
 
-      this.setApplied(false);
+      this.setApplied(false)
     }
 
-    return this.value;
+    return this.value
   }
 
   private setApplied(value: boolean) {
-    this.#applied = value;
+    this.#applied = value
   }
 }

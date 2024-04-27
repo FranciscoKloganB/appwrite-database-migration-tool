@@ -1,35 +1,39 @@
-import { createMock } from '@golevelup/ts-jest';
+import { createMock } from '@golevelup/ts-jest'
 
-import { DatabaseService } from '@lib/domain';
+import type { DatabaseService } from '@lib/domain'
 
-import { MigrationFileEntity } from './MigrationFileEntity';
+import { MigrationFileEntity } from './MigrationFileEntity'
 
 describe('MigrationFileEntity', () => {
-  const errorMessage = 'Method not implemented.';
+  const errorMessage = 'Method not implemented.'
 
-  const db = createMock<DatabaseService>();
-  const log = jest.fn();
-  const error = jest.fn();
+  const db = createMock<DatabaseService>()
+  const log = jest.fn()
+  const error = jest.fn()
 
-  const entity = new MigrationFileEntity();
+  const entity = new MigrationFileEntity()
 
   beforeEach(() => {
-    jest.resetAllMocks();
-  });
+    jest.resetAllMocks()
+  })
 
   it('should have an up method', () => {
-    expect(entity.up).toBeDefined();
-  });
+    expect(entity.up).toBeDefined()
+  })
 
   it('should have a down method', () => {
-    expect(entity.down).toBeDefined();
-  });
+    expect(entity.down).toBeDefined()
+  })
 
   it('should implement the up method', async () => {
-    await expect(async () => await entity.up({ db, log, error })).rejects.toThrow(errorMessage);
-  });
+    await expect(async () => await entity.up({ db, log, error })).rejects.toThrow(
+      errorMessage,
+    )
+  })
 
   it('should implement the down method', async () => {
-    await expect(async () => await entity.down({ db, log, error })).rejects.toThrow(errorMessage);
-  });
-});
+    await expect(async () => await entity.down({ db, log, error })).rejects.toThrow(
+      errorMessage,
+    )
+  })
+})

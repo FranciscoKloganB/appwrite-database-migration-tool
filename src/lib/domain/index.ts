@@ -1,3 +1,3 @@
-export * from './entities';
-export * from './DatabaseService';
-export * from './MigrationService';
+export * from './entities'
+export * from './DatabaseService'
+export * from './MigrationService'

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.7.1/schema.json",
+  "vcs": {
+    "clientKind": "git",
+    "defaultBranch": "main",
+    "enabled": true,
+    "useIgnoreFile": true
+  },
+  "files": {
+    "include": [
+      "src",
+      "test",
+      "test-utils",
+      "*.js",
+      "*.cjs",
+      "*.mjs",
+      "*.ts",
+      "*.cts",
+      "*.mts",
+      "*.json",
+      "*.md"
+    ],
+    "ignore": [
+      // Folders
+      ".github",
+      ".husky",
+      ".vscode",
+      "app",
+      "build",
+      "coverage",
+      "dist",
+      "docs",
+      "out",
+      "node_modules",
+      // Files
+      ".env",
+      ".env.*",
+      ".env.*.*",
+      ".envrc",
+      "package-lock.json",
+      "**/mockServiceWorker.js"
+    ]
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 88,
+    "attributePosition": "auto"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "complexity": {
+        "useLiteralKeys": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "arrowParentheses": "always",
+      "attributePosition": "auto",
+      "bracketSameLine": false,
+      "bracketSpacing": true,
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "preserve",
+      "quoteStyle": "single",
+      "semicolons": "asNeeded",
+      "trailingComma": "all"
+    }
+  },
+  "overrides": [
+    {
+      "include": ["*.spec.ts", "*.test.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    }
+  ]
+}

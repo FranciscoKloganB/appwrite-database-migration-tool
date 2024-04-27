@@ -1,26 +1,26 @@
-import { program } from 'commander';
+import { program } from 'commander'
 
-import { newMigration } from '@cli/actions';
+import { newMigration } from '@cli/actions'
 
 function validatePath(value: string) {
   if (!value.startsWith('./')) {
-    console.error('Error: Invalid relative path. It should start with "./".');
-    process.exit(1);
+    console.error('Error: Invalid relative path. It should start with "./".')
+    process.exit(1)
   }
 
-  return value;
+  return value
 }
 
 function validateDescription(value: string) {
   if (/\s/.test(value)) {
-    console.error('Error: Description should not contain spaces.');
-    process.exit(1);
+    console.error('Error: Description should not contain spaces.')
+    process.exit(1)
   }
 
-  return value;
+  return value
 }
 
-program.version('1.0.0').description('Appwrite Database Migration Tool');
+program.version('1.0.0').description('Appwrite Database Migration Tool')
 
 program
   .command('new-migration')
@@ -36,7 +36,7 @@ program
     validatePath,
   )
   .action(({ outpath, descriptor }) => {
-    newMigration({ outpath, descriptor });
-  });
+    newMigration({ outpath, descriptor })
+  })
 
-program.parse(process.argv);
+program.parse(process.argv)

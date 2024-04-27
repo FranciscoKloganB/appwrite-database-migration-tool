@@ -1,6 +1,6 @@
-import { pathsToModuleNameMapper, type JestConfigWithTsJest } from 'ts-jest';
+import { type JestConfigWithTsJest, pathsToModuleNameMapper } from 'ts-jest'
 
-import { compilerOptions } from './tsconfig.json';
+import { compilerOptions } from './tsconfig.json'
 
 const config: JestConfigWithTsJest = {
   verbose: true,
@@ -25,11 +25,12 @@ const config: JestConfigWithTsJest = {
     ...pathsToModuleNameMapper(compilerOptions.paths, {
       prefix: '<rootDir>/',
     }),
-    'tiny-invariant': '<rootDir>/node_modules/tiny-invariant/src/tiny-invariant.flow.js',
+    'tiny-invariant':
+      '<rootDir>/node_modules/tiny-invariant/src/tiny-invariant.flow.js',
   },
   testEnvironment: 'node',
   testPathIgnorePatterns: ['<rootDir>/jest.config.ts', '<rootDir>/src/index.ts'],
   transformIgnorePatterns: ['/node_modules/(?!tiny-invariant)'],
-};
+}
 
-export default config;
+export default config

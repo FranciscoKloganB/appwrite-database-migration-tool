@@ -1,15 +1,17 @@
-import { createId } from './createId';
+import { createId } from './createId'
 
 describe('createId', () => {
   it('should return a unique nanoid ID with 20 characters', () => {
-    const result = createId();
+    const result = createId()
 
-    expect(result.length).toBe(20);
-  });
+    expect(result.length).toBe(20)
+  })
 
   it('should only contain lower case letters or numbers', () => {
-    const ids: string[] = Array.from({ length: 100 }, () => createId());
+    const ids: string[] = Array.from({ length: 100 }, () => createId())
 
-    ids.forEach((id) => expect(id).toMatch(/^[a-z0-9]+$/));
-  });
-});
+    for (const id of ids) {
+      expect(id).toMatch(/^[a-z0-9]+$/)
+    }
+  })
+})

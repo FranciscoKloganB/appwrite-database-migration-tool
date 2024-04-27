@@ -1,20 +1,20 @@
-import { AppwriteException, Databases, type Client } from 'node-appwrite';
+import { AppwriteException, type Client, Databases } from 'node-appwrite'
 
 export class DatabaseService extends Databases {
-  readonly #databaseId: string;
+  readonly #databaseId: string
 
   constructor(client: Client, databaseId: string) {
-    super(client);
+    super(client)
 
-    this.#databaseId = databaseId;
+    this.#databaseId = databaseId
   }
 
   static create(props: { client: Client; databaseId: string }) {
-    return new DatabaseService(props.client, props.databaseId);
+    return new DatabaseService(props.client, props.databaseId)
   }
 
   get id() {
-    return this.#databaseId;
+    return this.#databaseId
   }
 
   /* -------------------------------------------------------------------------- */
@@ -22,41 +22,41 @@ export class DatabaseService extends Databases {
   /* -------------------------------------------------------------------------- */
   public async collectionExists(collectionId: string) {
     try {
-      await this.getCollection(this.#databaseId, collectionId);
+      await this.getCollection(this.#databaseId, collectionId)
 
-      return true;
+      return true
     } catch (e) {
       if (e instanceof AppwriteException) {
-        e.message.includes('Collection with the requested ID could not be found');
+        e.message.includes('Collection with the requested ID could not be found')
 
-        return false;
+        return false
       }
 
-      throw e;
+      throw e
     }
   }
 
   public async databaseExists() {
     try {
-      await this.get(this.#databaseId);
+      await this.get(this.#databaseId)
 
-      return true;
+      return true
     } catch (e) {
       if (e instanceof AppwriteException) {
-        e.message.includes('Database not found');
+        e.message.includes('Database not found')
 
-        return false;
+        return false
       }
 
-      throw e;
+      throw e
     }
   }
 
   public async dropCollection(collectionId: string) {
-    return this.deleteCollection(this.id, collectionId);
+    return this.deleteCollection(this.id, collectionId)
   }
 
   public async getCollections() {
-    return this.listCollections(this.id);
+    return this.listCollections(this.id)
   }
 }

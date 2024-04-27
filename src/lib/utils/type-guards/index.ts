@@ -1,2 +1,2 @@
-export * from './isClass';
-export * from './isRecord';
+export * from './isClass'
+export * from './isRecord'

@@ -1,1 +1,1 @@
-export * from './deferred';
+export * from './deferred'

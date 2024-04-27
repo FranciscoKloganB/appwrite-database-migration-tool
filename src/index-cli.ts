@@ -1,1 +1,1 @@
-export * from './cli/commander';
+export * from './cli/commander'

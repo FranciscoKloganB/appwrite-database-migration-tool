@@ -18,13 +18,13 @@
  * ```
  */
 export function deferred<TResolve = unknown, TReject = unknown>() {
-  let resolve: (value?: TResolve) => void = () => undefined;
-  let reject: (reason?: TReject) => void = () => undefined;
+  let resolve: (value?: TResolve) => void = () => undefined
+  let reject: (reason?: TReject) => void = () => undefined
 
   const promise = new Promise((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
+    resolve = res
+    reject = rej
+  })
 
-  return { promise, reject, resolve };
+  return { promise, reject, resolve }
 }
