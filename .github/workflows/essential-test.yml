@@ -26,3 +26,6 @@ jobs:
 
       - name: Lint and Format Check
         run: npm run tidy:ci
+
+      - name: Test Unit
+        run: npm run test:ci:coverage
