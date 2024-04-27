@@ -37,6 +37,7 @@
       ".env.*",
       ".env.*.*",
       ".envrc",
+      "package.json",
       "package-lock.json",
       "**/mockServiceWorker.js"
     ]
