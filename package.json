@@ -73,7 +73,7 @@
     "size-limit": "^11.1.2",
     "standard-version": "^9.5.0",
     "start-server-and-test": "^2.0.3",
-    "taze": "^0.13.7",
+    "taze": "^0.13.8",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tslib": "^2.6.2",
