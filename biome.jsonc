@@ -7,6 +7,7 @@
     "useIgnoreFile": true
   },
   "files": {
+    "ignoreUnknown": true,
     "include": [
       "src",
       "test",
@@ -19,27 +20,6 @@
       "*.mts",
       "*.json",
       "*.md"
-    ],
-    "ignore": [
-      // Folders
-      ".github",
-      ".husky",
-      ".vscode",
-      "app",
-      "build",
-      "coverage",
-      "dist",
-      "docs",
-      "out",
-      "node_modules",
-      // Files
-      ".env",
-      ".env.*",
-      ".env.*.*",
-      ".envrc",
-      "package.json",
-      "package-lock.json",
-      "**/mockServiceWorker.js"
     ]
   },
   "organizeImports": {

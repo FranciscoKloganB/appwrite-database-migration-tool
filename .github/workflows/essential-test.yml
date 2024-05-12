@@ -25,7 +25,7 @@ jobs:
         run: npm audit --production
 
       - name: Lint and Format Check
-        run: npm run tidy:ci
+        run: npm run biome:ci
 
       - name: Test Unit
         run: npm run test:ci:coverage
