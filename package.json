@@ -100,7 +100,7 @@
     "postbuild": "npm run add-shebang",
     "dev": "microbundle watch",
     "prepare": "husky install && chmod ug+x .husky/*",
-    "release": "standard-version",
+    "release": "commit-and-tag-version",
     "size": "size-limit",
     "test": "jest --watch",
     "test:ci": "jest --ci --maxWorkers=50%",
