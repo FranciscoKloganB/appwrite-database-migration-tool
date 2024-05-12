@@ -16,7 +16,7 @@ jobs:
 
   build-publishable-distribution:
     name: Publish
-    needs: [essential]
+    needs: [essential-test]
 
     runs-on: ubuntu-latest
 
