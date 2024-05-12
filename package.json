@@ -2,12 +2,7 @@
   "name": "@franciscokloganb/appwrite-database-migration-tool",
   "description": "An appwrite database migration tool with the goal of making schema and data changes across environments easier and more predictable.",
   "author": "franciscokloganb",
-  "keywords": [
-    "appwrite",
-    "database",
-    "migration",
-    "tool"
-  ],
+  "keywords": ["appwrite", "database", "migration", "tool"],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -46,9 +41,7 @@
   "module": "./dist/lib.esm.js",
   "unpkg": "./dist/lib.umd.js",
   "types": "./dist/lib.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "devDependencies": {
     "@biomejs/biome": "^1.7.3",
     "@commitlint/cli": "^19.3.0",

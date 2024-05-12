@@ -2,7 +2,15 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
   "automerge": true,
-  "ignoreDeps": ["@types/node", "appwrite", "commander", "nanoid", "node", "node-appwrite", "tiny-invariant"],
+  "ignoreDeps": [
+    "@types/node",
+    "appwrite",
+    "commander",
+    "nanoid",
+    "node",
+    "node-appwrite",
+    "tiny-invariant"
+  ],
   "rangeStrategy": "bump",
   "updateInternalDeps": true
 }
