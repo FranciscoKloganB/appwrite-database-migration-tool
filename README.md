@@ -244,7 +244,7 @@ operations in short time spans:
 ```js
 await db.createStringAttribute('[DATABASE_ID]', '[COLLECTION_ID]', 'bar', 32, true)
 
-// ❌ Bad code - Document creation likely to fail. Your request for attribute creation may still be queued.
+// ❌ Bad code - Document creation may fail. Your request for attribute creation may still be queued.
 await dbService.createDocument(
   '[DATABASE_ID]',
   '[COLLECTION_ID]',
@@ -350,7 +350,7 @@ creating a new migration file to patch the issue.
    > You can do that by accessing `Project > Settings > API credentials > View API Keys > { Select
    > API KEY } > Scopes`; From here onwards, you need to add the scopes that are missing.
 
-## Roadmap to v2.0.0
+## RFC
 
 ### Improved fault tolerance (pseudo-transactional behaviour)
 
