@@ -83,7 +83,7 @@
     "commander": "^12.0.0",
     "nanoid": "^3.3.4",
     "node-appwrite": ">=12.0.0",
-    "tiny-invariant": "^1.3.1"
+    "tiny-invariant": "^1.3.3"
   },
   "engines": {
     "node": ">=18.0.0"
