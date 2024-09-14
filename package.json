@@ -61,7 +61,7 @@
     "jest-when": "^3.6.0",
     "microbundle": "^0.15.1",
     "npm-cli-login": "^1.0.0",
-    "npm-run-all2": "^6.1.2",
+    "npm-run-all2": "^6.2.3",
     "pinst": "^3.0.0",
     "rimraf": "^5.0.7",
     "size-limit": "^11.1.3",
